@@ -23,11 +23,20 @@ class NavBar extends Component {
         };
     }
 
+    getDefaultSelectedKey = () => {
+        console.log('key:', window.location);
+        const { pathname } = window.location;
+        const navOption = navOptions.find(item => item.path === pathname);
+        const index = navOptions.indexOf(navOption);
+        return index >= 0 ? [`${index}`] : ['0'];
+    }
+
     render() {
+        const defaultSelectedKeys = this.getDefaultSelectedKey();
         return (
             <Layout>
                 <Header className="header" style={{ zIndex: 1, width: '100%' }}>
-                    <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['0']}>
+                    <Menu theme="dark" mode="horizontal" defaultSelectedKeys={defaultSelectedKeys}>
                             {navOptions.map( (item, index) => (
                                 <Menu.Item key={index}>
                                     <Link className='header-link' to={item.path}>

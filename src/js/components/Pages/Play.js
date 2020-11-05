@@ -12,9 +12,13 @@ class Play extends Component {
         this.game = startGame();
     }
 
+    componentWillUnmount = () => {
+        this.game ? this.game.destroy() : null;
+    }
+
     render() {
         return (
-            <div id='game' ref={r=> this.gameContainer = r} />
+            <div id='game' />
         )
     }
 }

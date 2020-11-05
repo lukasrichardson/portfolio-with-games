@@ -1,0 +1,34 @@
+.instructions {
+    &__header {
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        span {
+            color: blue;
+        }
+    }
+}
+
+.carousel-slide {
+    padding: 16px 32px;
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    height: 560px;
+    background: #364d79;
+    &__header {
+        width: fit-content;
+        color: #fff;
+    }
+    &__content {
+        text-align: center;
+        color: #fff;
+    }
+    &__img {
+        width: 350px;
+        height: 350px;
+        background: url('../assets/instructions1.png') center no-repeat;
+        background-size: contain;
+    }
+}
