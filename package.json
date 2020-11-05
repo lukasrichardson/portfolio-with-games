@@ -6,7 +6,7 @@
   "scripts": {
     "start-old": "node server.js -experimental-modules",
     "nodemon": "nodemon server.js",
-    "start": "npm-run-all -p nodemon  watch:backend",
+    "start:dev": "npm-run-all -p nodemon  watch:backend",
     "watch:backend": "webpack --watch --mode development",
     "build": "webpack --mode production",
     "test": "echo \"Error: no test specified\" && exit 1"
