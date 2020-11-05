@@ -25,6 +25,7 @@ var config = {
 var game = new Phaser.Game(config);
 var platforms;
 var player;
+var playerEnemyCollider;
 var cursors;
 var stars;
 var score = 0;
@@ -32,6 +33,9 @@ var scoreText;
 var bombs;
 var bullets;
 var enemy;
+var health = 100;
+var healthText;
+var immune = false;
 
 function preload() {
     this.load.image('sky', 'assets/sky.png');
@@ -92,7 +96,7 @@ function create() {
     enemy = this.physics.add.sprite(400, 50, 'dude');
     enemy.setCollideWorldBounds(true);
     this.physics.add.collider(enemy, platforms);
-    this.physics.add.collider(enemy, player, hitByEnemy, null, this);
+    playerEnemyCollider = this.physics.add.collider(enemy, player, hitByEnemy, null, this);
     
     /*ADD CONTROLS*/
     cursors = this.input.keyboard.createCursorKeys();
@@ -118,6 +122,13 @@ function create() {
         fontSize: '32px',
         fill: '#000'
     });
+
+    healthText = this.add.text(16, 66, `health: ${health}`, {
+        fontSize: '32px',
+        fill: '#000'
+    });
+
+    /*  */
 
     /*ADD BOMBS*/
     bombs = this.physics.add.group();
@@ -186,7 +197,7 @@ function update() {
 function collectStar (player, star) {
     star.disableBody(true, true);
     score += 10;
-    scoreText.setText('Score: ' + score);
+    scoreText.setText('score: ' + score);
     respawnStars();
 }
 
@@ -242,13 +253,27 @@ function onShoot (pointer) {
     }
 }
 
-function playerTakesDamage () {
+function playerTakesDamage (damage = 10) {
+    if (immune) return;
+    immune = true;
+    health -= damage;
+    healthText.setText('health: ' + health);
     player.setTint(0xff0000);
+    playerEnemyCollider.setActive = false;
+    // this.physics.world.removeCollider
+    if (health <= 0) {
+        player.setTint(0xff0000);
+        window.location.reload();
+        alert('you die');
+    }
     setTimeout(() => {
         player.clearTint();
+        immune = false;
+        playerEnemyCollider.setActive = true;
     }, 500);
 }
 
-function hitByEnemy (enemy, player) {
+function hitByEnemy (enemy, player, x, y, z) {
+    console.log('hit by enemy', enemy, player, x, y, z);
     playerTakesDamage();
 }
