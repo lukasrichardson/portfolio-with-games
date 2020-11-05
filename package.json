@@ -6,6 +6,7 @@
   "scripts": {
     "start-old": "node server.js -experimental-modules",
     "nodemon": "nodemon server.js",
+    "start": "(npm i && npm run build) & node server.js",
     "start:dev": "npm-run-all -p nodemon  watch:backend",
     "watch:backend": "webpack --watch --mode development",
     "build": "webpack --mode production",
