@@ -22,7 +22,7 @@ var config = {
     }
 };
 
-var game = new Phaser.Game(config);
+// var game = new Phaser.Game(config);
 var platforms;
 var player;
 var playerEnemyCollider;
@@ -38,12 +38,12 @@ var healthText;
 var immune = false;
 
 function preload() {
-    this.load.image('sky', 'assets/sky.png');
-    this.load.image('ground', 'assets/platform.png');
-    this.load.image('star', 'assets/star.png');
-    this.load.image('bomb', 'assets/bomb.png');
-    this.load.image("bullet", "assets/bullet.png");
-    this.load.spritesheet('dude', 'assets/dude.png', {
+    this.load.image('sky', 'sky.png');
+    this.load.image('ground', 'platform.png');
+    this.load.image('star', 'star.png');
+    this.load.image('bomb', 'bomb.png');
+    this.load.image("bullet", "bullet.png");
+    this.load.spritesheet('dude', 'dude.png', {
         frameWidth: dudeWidth,
         frameHeight: dudeHeight
     });
@@ -277,3 +277,6 @@ function hitByEnemy (enemy, player, x, y, z) {
     console.log('hit by enemy', enemy, player, x, y, z);
     playerTakesDamage();
 }
+
+const startGame = () => new Phaser.Game(config);
+export default startGame;

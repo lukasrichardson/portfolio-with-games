@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import game from './js/components/game';
+// import game from './js/components/game';
 import App from './js/components/App';
 import 'antd/dist/antd.css';
 
