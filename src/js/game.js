@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import gameConstants from '../constants/game.constants.js';
+import gameConstants from './constants/game.constants.js';
 
 const { width, height, gravity, dudeWidth, dudeHeight } = gameConstants;
 
@@ -145,14 +145,25 @@ function create() {
     this.physics.add.collider(bullets, enemy, shootEnemy, null, this);
     this.physics.add.collider(bullets, platforms);
     this.physics.add.collider(bullets, bullets);
+    console.log('this:', this);
 }
 
 function update() {
+    /* CHECK IF DEAD */
+    if (health <= 0) {
+        player.setTint(0xff0000);
+        setTimeout(() => {
+            window.location.reload();
+            alert('you die');
+        }, 0);
+    }
     /*PLAYER MOVE*/
+    console.log('cursors', cursors);
     if (cursors.left.isDown) {
         player.setVelocityX(-160);
         player.anims.play('left', true);
     } else if (cursors.right.isDown) {
+        // this.scene.pause();
         player.setVelocityX(160);
         player.anims.play('right', true);
     }
@@ -261,11 +272,6 @@ function playerTakesDamage (damage = 10) {
     player.setTint(0xff0000);
     playerEnemyCollider.setActive = false;
     // this.physics.world.removeCollider
-    if (health <= 0) {
-        player.setTint(0xff0000);
-        window.location.reload();
-        alert('you die');
-    }
     setTimeout(() => {
         player.clearTint();
         immune = false;

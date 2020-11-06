@@ -34,9 +34,14 @@ class Instructions extends Component {
                 <Carousel dotPosition={dotPosition}>
                     {carouselSlides.map( (item, index) => (
                         <div key={index} className='carousel-slide'>
+                            <div>Back</div>
                             <h2 className='carousel-slide__header'>{item.name}</h2>
                             <span className='carousel-slide__content'>{item.content}</span>
-                            <div className='carousel-slide__img'/>
+                            <div className='carousel-slide__images'>
+                            <div className={`carousel-slide__img instructions${index+1}`}/>
+                            {item.name === 2 && <div className={`carousel-slide__img instructions${index+1}A`}/>}
+                            </div>
+                            <div>Next</div>
                         </div>
                     ))}
                 </Carousel>
