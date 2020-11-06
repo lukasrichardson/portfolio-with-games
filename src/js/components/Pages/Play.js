@@ -10,10 +10,13 @@ class Play extends Component {
 
     componentDidMount() {
         this.game = startGame();
+        console.log('did mount', this.game)
     }
 
     componentWillUnmount = () => {
-        this.game ? this.game.destroy() : null;
+        this.game.shouldDestroy = true;
+        // this.game ? this.game.destroy() : null;
+        console.log('unmount', this,game);
     }
 
     render() {
