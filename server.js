@@ -7,12 +7,12 @@ let path = require("path");
 var PORT = process.env.PORT || 6900;
 const io = require('socket.io')(http);
 const socketHandler = require('./server/socketHandler')
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
 
-mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true });
-const db = mongoose.connection;
-db.on('error', error => console.error(error));
-db.once('open', () => console.log('Connected to Database'));
+// mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true, useUnifiedTopology: true });
+// const db = mongoose.connection;
+// db.on('error', error => console.error(error));
+// db.once('open', () => console.log('Connected to Database'));
 
 const players = {};
 
