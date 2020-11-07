@@ -16,8 +16,10 @@
   "license": "ISC",
   "dependencies": {
     "antd": "^4.8.0",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "http": "0.0.1-security",
+    "mongoose": "^5.10.13",
     "path": "^0.12.7",
     "phaser": "^3.24.1",
     "react": "^17.0.1",

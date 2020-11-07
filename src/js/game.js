@@ -35,6 +35,9 @@ var bullets;
 var health = 100;
 var healthText;
 var immune = false;
+var fireRate = 200;
+var canShoot = true;
+var bulletExpirationTime = 3500;
 
 function preload() {
     this.load.image('sky', 'sky.png');
@@ -285,13 +288,13 @@ function bulletShot(serverBullet, bullets) {
         newBullet.setBounce(1);
         newBullet.setActive(true);
         newBullet.setVisible(true);
-        newBullet.setScale(0.01);
+        newBullet.setScale(0.02);
         newBullet.body.velocity.y = yVel;
         newBullet.body.velocity.x = xVel;
         newBullet.playerId = playerId;
         setTimeout(() => {
             newBullet.destroy();
-        }, 2500);
+        }, bulletExpirationTime);
     }
 }
 
@@ -366,9 +369,15 @@ function playerShot(player, bullet, self, damage = 10) {
 }
 
 function onShoot(pointer, self) {
-    let xVel = 4 * (pointer.x - self.player.x);
-    let yVel = 4 * (pointer.y - self.player.y);
-    self.socket.emit('shootBullet', { x: self.player.x, y: self.player.y, xVel, yVel });
+    if (canShoot) {
+        let xVel = 4 * (pointer.x - self.player.x);
+        let yVel = 4 * (pointer.y - self.player.y);
+        self.socket.emit('shootBullet', { x: self.player.x, y: self.player.y, xVel, yVel });
+        canShoot = false;
+        setTimeout(() => {
+           canShoot = true; 
+        }, fireRate);
+    }
 }
 
 function playerTakesDamage(player, self, damage = 10) {
