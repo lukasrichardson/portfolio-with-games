@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import startGame from '../../game';
+import startGame from '../../startGame';
 
 class Play extends Component {
     constructor(props) {

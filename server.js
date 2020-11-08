@@ -15,11 +15,12 @@ const socketHandler = require('./server/socketHandler')
 // db.once('open', () => console.log('Connected to Database'));
 
 const players = {};
+const rooms = {};
 
 const bullets = {};
 
 io.on('connection', socket => {
-    socketHandler(socket, io, players, bullets);
+    socketHandler(socket, io, players, bullets, rooms);
 })
 
 app.use(express.json());
