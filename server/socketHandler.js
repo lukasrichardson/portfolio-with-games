@@ -1,57 +1,72 @@
-const User = require('./user');
-
 const socketHandler = async (socket, io, players, bullets, rooms) => {
     console.log('a user connected to the server');
-    socket.on('joinRoom', (roomId) => {
-        if (!roomId) roomId = 0;
+    socket.on('getRooms', () => {
+        socket.emit('sendRooms', players);
+    });
+    socket.on('askToJoin', request => {
+        let { username, roomNumber } = request;
+        console.log('ask to join', username, roomNumber)
+        if (!players[roomNumber]) {
+            socket.emit('allowJoin', { username, roomNumber });
+        } else {
+            if (!players[roomNumber][username]) {
+                socket.emit('allowJoin', { username, roomNumber });
+            } else {
+                socket.emit('denyJoin', { username, roomNumber });
+            }
+        }
+    });
+    socket.on('joinRoom', ({ username, roomNumber}) => {
+        if (!roomNumber) roomNumber = 0;
         // add socketId to room
-        socket.join(roomId);
-        socket.roomId = roomId;
+        socket.join(roomNumber);
+        socket.roomNumber = roomNumber;
         // initialize room if it doesnt exist
-        if (!players[roomId]) players[roomId] = {};
+        if (!players[roomNumber]) players[roomNumber] = {};
         // add new player to players object
-        players[roomId][socket.id] = {
+        players[roomNumber][socket.id] = {
             rotation: 0,
             x: Math.floor(Math.random() * 400) + 50,
             y: Math.floor(Math.random() * 400) + 50,
             playerId: socket.id,
-            roomId
+            roomNumber,
+            username: username
         };
         // send players object to the new player
-        socket.emit('currentPlayers', players[roomId]);
+        socket.emit('currentPlayers', players[roomNumber]);
         // update all other players of new player
-        socket.broadcast.to(roomId).emit('newPlayer', players[roomId][socket.id]);
+        socket.broadcast.to(roomNumber).emit('newPlayer', players[roomNumber][socket.id]);
     })
 
     socket.on('playerMovement', movementData => {
-        if (players[socket.roomId][socket.id]) {
-            players[socket.roomId][socket.id].x = movementData.x;
-            players[socket.roomId][socket.id].y = movementData.y;
-            players[socket.roomId][socket.id].rotation = movementData.rotation;
-            socket.broadcast.to(socket.roomId).emit('playerMoved', players[socket.roomId][socket.id]);
+        if (players[socket.roomNumber][socket.id]) {
+            players[socket.roomNumber][socket.id].x = movementData.x;
+            players[socket.roomNumber][socket.id].y = movementData.y;
+            players[socket.roomNumber][socket.id].rotation = movementData.rotation;
+            socket.broadcast.to(socket.roomNumber).emit('playerMoved', players[socket.roomNumber][socket.id]);
         }
     });
 
     socket.on('shootBullet', shotInfo => {
-        if (!bullets[socket.roomId]) bullets[socket.roomId] = {};
-        bullets[socket.roomId][socket.id] = {
+        if (!bullets[socket.roomNumber]) bullets[socket.roomNumber] = {};
+        bullets[socket.roomNumber][socket.id] = {
             ...shotInfo,
             playerId: socket.id
         };
-        io.to(socket.roomId).emit('bulletShot', bullets[socket.roomId][socket.id]);
+        io.to(socket.roomNumber).emit('bulletShot', bullets[socket.roomNumber][socket.id]);
     });
 
     socket.on('hitPlayer', ({ bullet, id: playerId}) => {
-        delete bullets[socket.roomId][socket.id];
-        io.to(socket.roomId).emit('playerHit', { player: players[socket.roomId][socket.id], bullet: {...bullet, playerId}})
+        delete bullets[socket.roomNumber][socket.id];
+        io.to(socket.roomNumber).emit('playerHit', { player: players[socket.roomNumber][socket.id], bullet: {...bullet, playerId}})
     });
 
     socket.on('deadPlayer', () => {
         // remove player from players object
-        if (players[socket.roomId]) {
-            delete players[socket.roomId][socket.id];
+        if (players[socket.roomNumber]) {
+            delete players[socket.roomNumber][socket.id];
             // update all other players of deleted player
-            io.to(socket.roomId).emit('disconnect', socket.id);
+            io.to(socket.roomNumber).emit('disconnect', socket.id);
         }
     })
 
@@ -59,8 +74,8 @@ const socketHandler = async (socket, io, players, bullets, rooms) => {
         // remove socket ID from room
         console.log('a user disconnected')
         // remove players from players object
-        if (players[socket.roomId]) {
-            delete players[socket.roomId][socket.id];
+        if (players[socket.roomNumber]) {
+            delete players[socket.roomNumber][socket.id];
             // update all other players of deleted player
             io.emit('disconnect', socket.id);
         }

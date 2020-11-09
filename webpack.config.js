@@ -40,9 +40,17 @@ module.exports = {
                     loader: 'url-loader',
                   },
                 ],
-              }
+              },
+              {
+                test: /\.tsx?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/,
+              },
         ]
     },
+    resolve: {
+        extensions: [ '.tsx', '.ts', '.js' ],
+      },
     plugins: [
         new HtmlWebPackPlugin({
             template: './src/index.html',
