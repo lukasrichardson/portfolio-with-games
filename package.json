@@ -9,7 +9,7 @@
     "start": "(npm i && npm run build) & node server.js",
     "start:dev": "npm-run-all -p nodemon  watch:backend",
     "watch:backend": "webpack --watch --mode development",
-    "build": "webpack -p --mode production",
+    "build": "webpack --mode production",
     "test": "echo \"Error: no test specified\"",
     "analyze": "webpack-bundle-analyzer stats.json"
   },
