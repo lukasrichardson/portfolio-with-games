@@ -85,6 +85,7 @@ class MainScene extends Phaser.Scene {
         
         /* ADD BULLETS */
         this.bullets = this.physics.add.group();
+        this.bullets.setAll('outOfBoundsKill', true);
         this.physics.add.collider(this.bullets, this.platforms);
         this.physics.add.collider(this.bullets, this.bullets);
     
@@ -235,12 +236,6 @@ class MainScene extends Phaser.Scene {
             if (this.player.body.velocity.y != yVel || this.player.body.velocity.x != xVel) {
                 this.socket.emit('playerMovement', { x: this.player.x, y: this.player.y, rotation: this.player.rotation, xVel, yVel });
             }
-    
-            this.player.oldPosition = {
-                x: this.player.x,
-                y: this.player.y,
-                rotation: this.player.rotation
-            };
         }
     }
     
