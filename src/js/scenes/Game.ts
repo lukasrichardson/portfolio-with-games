@@ -38,7 +38,7 @@ class MainScene extends Phaser.Scene {
         this.health = 100;
         this.healthText;
         this.immune = false;
-        this.fireRate = 300;
+        this.fireRate = 400;
         this.canShoot = true;
         this.bulletExpirationTime = 3500;
     }
@@ -231,6 +231,7 @@ class MainScene extends Phaser.Scene {
             } else yVel = this.player.body.velocity.y;
     
             this.physics.world.wrap(this.player, 5);
+            this.physics.world.wrap(this.otherPlayers, 5);
             // emit player movement
             if (this.player.body.velocity.y != yVel || this.player.body.velocity.x != xVel) {
                 this.socket.emit('playerMovement', { x: this.player.x, y: this.player.y, rotation: this.player.rotation, xVel, yVel });
@@ -242,7 +243,7 @@ class MainScene extends Phaser.Scene {
         this.player = this.physics.add.sprite(playerInfo.x, playerInfo.y, 'dude').setScale(0.5);
         if (this.platforms) this.physics.add.collider(this.player, this.platforms);
         //@ts-ignore
-        this.physics.add.collider(this.player, this.bullets, this.playerShot, undefined, this);
+        this.physics.add.overlap(this.player, this.bullets, this.playerShot, undefined, this);
     }
     
     addOtherPlayers = (playerInfo: User) => {
@@ -281,6 +282,8 @@ class MainScene extends Phaser.Scene {
     playerShot = (_player: any, bullet: { x: number, y: number, xVel: number, yVel: number, playerId: string }, damage = 10) => {
         if (bullet.playerId !== this.socket.id) {
             if (!this.immune) {
+                let { x: xVel, y: yVel } = this.player.body.velocity;
+                // this.socket.emit('playerMovement', { x: this.player.x, y: this.player.y, rotation: this.player.rotation, xVel, yVel });
                 this.immune = true;
                 this.socket.emit('hitPlayer', { bullet, id: bullet.playerId });
                 this.health -= damage;
@@ -303,6 +306,12 @@ class MainScene extends Phaser.Scene {
         if (this.canShoot) {
             let xVel = 4 * (pointer.x - this.player.x);
             let yVel = 4 * (pointer.y - this.player.y);
+            if (Math.abs(xVel) < 80 ) {
+                xVel = 80 * (xVel / Math.abs(xVel));
+            }
+            if (Math.abs(yVel) < 80 ) {
+                yVel = 80 * (yVel / Math.abs(yVel));
+            }
             this.socket.emit('shootBullet', { x: this.player.x, y: this.player.y, xVel, yVel });
             this.canShoot = false;
             setTimeout(() => {

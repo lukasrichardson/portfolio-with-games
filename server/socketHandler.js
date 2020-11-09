@@ -59,8 +59,10 @@ const socketHandler = async (socket, io, players, bullets, rooms) => {
     });
 
     socket.on('hitPlayer', ({ bullet, id: playerId}) => {
-        delete bullets[socket.roomNumber][socket.id];
-        io.to(socket.roomNumber).emit('playerHit', { player: players[socket.roomNumber][socket.id], bullet: {...bullet, playerId}})
+        if (bullets[socket.roomNumber]) {
+            delete bullets[socket.roomNumber][socket.id];
+            io.to(socket.roomNumber).emit('playerHit', { player: players[socket.roomNumber][socket.id], bullet: {...bullet, playerId}})
+        }
     });
 
     socket.on('deadPlayer', () => {
