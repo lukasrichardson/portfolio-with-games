@@ -171,6 +171,7 @@ class MainScene extends Phaser.Scene {
     }
 
     update() {
+        //@ts-ignore
         if (this.game.shouldDestroy === true) {
             this.game.destroy(false);
             this.socket.disconnect();
@@ -233,6 +234,7 @@ class MainScene extends Phaser.Scene {
     addOtherPlayers = (playerInfo: User) => {
         // ADD ENEMY
         const enemy = this.physics.add.sprite(playerInfo.x, playerInfo.y, 'dude').setScale(0.5);
+        //@ts-ignore
         enemy.playerId = playerInfo.playerId;
         if (this.platforms) this.physics.add.collider(enemy, this.platforms);
         if (this.otherPlayers) this.otherPlayers.add(enemy);
