@@ -85,7 +85,6 @@ class MainScene extends Phaser.Scene {
         
         /* ADD BULLETS */
         this.bullets = this.physics.add.group();
-        this.bullets.setAll('outOfBoundsKill', true);
         this.physics.add.collider(this.bullets, this.platforms);
         this.physics.add.collider(this.bullets, this.bullets);
     
@@ -241,7 +240,6 @@ class MainScene extends Phaser.Scene {
     
     addPlayer = (playerInfo: User) => {
         this.player = this.physics.add.sprite(playerInfo.x, playerInfo.y, 'dude').setScale(0.5);
-        // player.setCollideWorldBounds(true);
         if (this.platforms) this.physics.add.collider(this.player, this.platforms);
         //@ts-ignore
         this.physics.add.collider(this.player, this.bullets, this.playerShot, undefined, this);
@@ -250,6 +248,7 @@ class MainScene extends Phaser.Scene {
     addOtherPlayers = (playerInfo: User) => {
         // ADD ENEMY
         const enemy = this.physics.add.sprite(playerInfo.x, playerInfo.y, 'dude').setScale(0.5);
+        enemy.setPosition(playerInfo.x, playerInfo.y);
         //@ts-ignore
         enemy.playerId = playerInfo.playerId;
         if (this.platforms) this.physics.add.collider(enemy, this.platforms);
@@ -267,9 +266,15 @@ class MainScene extends Phaser.Scene {
             newBullet.body.velocity.y = yVel;
             newBullet.body.velocity.x = xVel;
             newBullet.playerId = playerId;
-            setTimeout(() => {
+            newBullet.setCollideWorldBounds(true);
+            newBullet.body.onWorldBounds = true;
+            newBullet.body.world.on('worldbounds', function(body: any) {
+            // Check if the body's game object is the newBullet you are listening for
+            if (body.gameObject === newBullet) {
+                // Stop physics and render updates for this object
                 newBullet.destroy();
-            }, this.bulletExpirationTime);
+            }
+            }, newBullet);
         }
     }
 
