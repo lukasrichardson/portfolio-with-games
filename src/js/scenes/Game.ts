@@ -23,6 +23,10 @@ class MainScene extends Phaser.Scene {
     player: any;
     username: string | undefined;
     roomNumber: string | undefined;
+    w_key: any;
+    a_key: any;
+    s_key: any;
+    d_key: any;
     constructor() {
         super({
             key: SCENES.GAME
@@ -63,6 +67,10 @@ class MainScene extends Phaser.Scene {
         
         /*ADD CONTROLS*/
         this.cursors = this.input.keyboard.createCursorKeys();
+        this.w_key = this.input.keyboard.addKey('W');
+        this.a_key = this.input.keyboard.addKey('A');
+        this.s_key = this.input.keyboard.addKey('S');
+        this.d_key = this.input.keyboard.addKey('D');
     
         /*ADD SCORE AND HEALTH TEXT*/
         this.scoreText = this.add.text(16, 16, 'score: 0', {
@@ -186,10 +194,10 @@ class MainScene extends Phaser.Scene {
                 }, 0);
             }
             /*PLAYER MOVE*/
-            if (this.cursors.left.isDown) {
+            if (this.cursors.left.isDown || this.a_key.isDown) {
                 this.player.setVelocityX(-160);
                 this.player.anims.play('left', true);
-            } else if (this.cursors.right.isDown) {
+            } else if (this.cursors.right.isDown || this.d_key.isDown) {
                 // this.scene.pause();
                 this.player.setVelocityX(160);
                 this.player.anims.play('right', true);
@@ -200,12 +208,12 @@ class MainScene extends Phaser.Scene {
             }
             
             /*PLAYER JUMP*/
-            if (this.cursors.up.isDown && this.player.body.touching.down) {
+            if ((this.cursors.up.isDown || this.w_key.isDown) && this.player.body.touching.down) {
                 this.player.setVelocityY(-330);
             }
             
             /*PLAYER FAST FALL*/
-            if (this.cursors.down.isDown && !this.player.body.touching.down) {
+            if ((this.cursors.down.isDown || this.s_key.isDown) && !this.player.body.touching.down) {
                 this.player.setVelocityY(330);
             }
     
