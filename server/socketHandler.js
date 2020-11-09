@@ -5,7 +5,6 @@ const socketHandler = async (socket, io, players, bullets, rooms) => {
     });
     socket.on('askToJoin', request => {
         let { username, roomNumber } = request;
-        console.log('ask to join', username, roomNumber)
         if (!players[roomNumber]) {
             socket.emit('allowJoin', { username, roomNumber });
         } else {
@@ -39,11 +38,14 @@ const socketHandler = async (socket, io, players, bullets, rooms) => {
     })
 
     socket.on('playerMovement', movementData => {
+        const oldPlayerMovement = { ...players[socket.roomNumber][socket.id] };
         if (players[socket.roomNumber][socket.id]) {
             players[socket.roomNumber][socket.id].x = movementData.x;
             players[socket.roomNumber][socket.id].y = movementData.y;
             players[socket.roomNumber][socket.id].rotation = movementData.rotation;
-            socket.broadcast.to(socket.roomNumber).emit('playerMoved', players[socket.roomNumber][socket.id]);
+            players[socket.roomNumber][socket.id].xVel = movementData.xVel;
+            players[socket.roomNumber][socket.id].yVel = movementData.yVel;
+            io.to(socket.roomNumber).emit('playerMoved', { new:players[socket.roomNumber][socket.id], old: oldPlayerMovement});
         }
     });
 

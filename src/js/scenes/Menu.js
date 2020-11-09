@@ -1,5 +1,5 @@
 import React from 'react';
-import Phaser from 'phaser';
+// import Phaser from 'phaser';
 import gameConstants from '../constants/game.constants';
 
 const { SCENES } = gameConstants;

@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+// import Phaser from 'phaser';
 import gameConstants from '../constants/game.constants';
 
 const { SCENES, dudeHeight, dudeWidth } = gameConstants;
@@ -24,7 +24,7 @@ class LoadScene extends Phaser.Scene {
         this.load.on('complete', () => {
             this.scene.start(SCENES.MENU);
         });
-        
+
         this.load.image('sky', 'sky.png');
         this.load.image('ground', 'platform.png');
         this.load.image('star', 'star.png');

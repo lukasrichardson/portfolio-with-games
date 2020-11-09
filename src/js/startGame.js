@@ -1,5 +1,5 @@
 /** @type {import("../../typings/phaser")} */
-import Phaser from 'phaser';
+// import Phaser from 'phaser';
 import gameConstants from './constants/game.constants';
 import Load from './scenes/Load';
 import Game from './scenes/Game';

@@ -5,6 +5,9 @@ let app = express();
 let http = require("http").Server(app);
 let path = require("path");
 var PORT = process.env.PORT || 6900;
+// const io = require('socket.io')(http, {
+//   wsEngine: 'eiows'
+// });
 const io = require('socket.io')(http);
 const socketHandler = require('./server/socketHandler')
 // const mongoose = require('mongoose');

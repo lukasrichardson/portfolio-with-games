@@ -1,5 +1,5 @@
 
-import Phaser from 'phaser';
+// import Phaser from 'phaser';
 import gameConstants from '../constants/game.constants';
 //@ts-ignore
 import User from '../../../server/user';
@@ -45,7 +45,6 @@ class MainScene extends Phaser.Scene {
 
     init(data: any) {
         const { username, roomNumber } = data;
-        console.log('game init', data);
         this.username = username;
         this.roomNumber = roomNumber;
     }
@@ -141,12 +140,30 @@ class MainScene extends Phaser.Scene {
             this.addOtherPlayers(playerInfo);
         });
     
-        this.socket.on('playerMoved', (playerInfo: User) => {
-            if (this.otherPlayers) {
+        this.socket.on('playerMoved', (playerInfo: { new: User, old: User}) => {
+            const { xVel, yVel, rotation } = playerInfo.new;
+            let applyAnims = (targetPlayer: any) => {
+                if (xVel > 0) {
+                    targetPlayer.anims.play('right', true);
+                } else if (xVel < 0) {
+                    targetPlayer.anims.play('left', true);
+                } else {
+                    targetPlayer.anims.play('turn');
+                }
+            }
+            if (this.socket.id == playerInfo.new.playerId) {
+                this.player.setRotation(rotation);
+                this.player.setVelocityX(xVel);
+                this.player.setVelocityY(yVel);
+                applyAnims(this.player);
+            } else if (this.otherPlayers) {
                 this.otherPlayers.getChildren().forEach( (otherPlayer: any) => {
-                    if (playerInfo.playerId === otherPlayer.playerId) {
-                        otherPlayer.setRotation(playerInfo.rotation);
-                        otherPlayer.setPosition(playerInfo.x, playerInfo.y);
+                    if (playerInfo.new.playerId === otherPlayer.playerId) {
+                        otherPlayer.setRotation(playerInfo.new.rotation);
+                        // otherPlayer.setPosition(playerInfo.new.x, playerInfo.new.y);
+                        otherPlayer.setVelocityX(xVel);
+                        otherPlayer.setVelocityY(yVel);
+                        applyAnims(otherPlayer);
                     }
                 })
             }
@@ -179,6 +196,8 @@ class MainScene extends Phaser.Scene {
     }
 
     update() {
+        let yVel;
+        let xVel;
         //@ts-ignore
         if (this.game.shouldDestroy === true) {
             this.game.destroy(false);
@@ -195,39 +214,33 @@ class MainScene extends Phaser.Scene {
             }
             /*PLAYER MOVE*/
             if (this.cursors.left.isDown || this.a_key.isDown) {
-                this.player.setVelocityX(-160);
-                this.player.anims.play('left', true);
+                xVel = -160;
             } else if (this.cursors.right.isDown || this.d_key.isDown) {
-                // this.scene.pause();
-                this.player.setVelocityX(160);
-                this.player.anims.play('right', true);
+                xVel = 160;
             }
             else {
-                this.player.setVelocityX(0);
-                this.player.anims.play('turn');
+                xVel = 0;
             }
             
             /*PLAYER JUMP*/
             if ((this.cursors.up.isDown || this.w_key.isDown) && this.player.body.touching.down) {
-                this.player.setVelocityY(-330);
-            }
-            
-            /*PLAYER FAST FALL*/
-            if ((this.cursors.down.isDown || this.s_key.isDown) && !this.player.body.touching.down) {
-                this.player.setVelocityY(330);
-            }
+                yVel = -330;
+            } else if ((this.cursors.down.isDown || this.s_key.isDown) && !this.player.body.touching.down) {
+                /*PLAYER FAST FALL*/
+                yVel = 330;
+            } else yVel = this.player.body.velocity.y;
     
             this.physics.world.wrap(this.player, 5);
             // emit player movement
-            if (this.player.oldPosition && (this.player.x !== this.player.oldPosition.x || this.player.y !== this.player.oldPosition.y || this.player.rotation !== this.player.oldPosition.rotation)) {
-                this.socket.emit('playerMovement', { x: this.player.x, y: this.player.y, rotation: this.player.rotation });
+            if (this.player.body.velocity.y != yVel || this.player.body.velocity.x != xVel) {
+                this.socket.emit('playerMovement', { x: this.player.x, y: this.player.y, rotation: this.player.rotation, xVel, yVel });
             }
     
             this.player.oldPosition = {
                 x: this.player.x,
                 y: this.player.y,
                 rotation: this.player.rotation
-                };
+            };
         }
     }
     
