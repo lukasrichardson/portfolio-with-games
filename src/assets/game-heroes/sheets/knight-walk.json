@@ -1,0 +1,146 @@
+{
+	"textures": [
+		{
+			"image": "knight-walk.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 251,
+				"h": 61
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "walk3.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 128,
+						"h": 128
+					},
+					"spriteSourceSize": {
+						"x": 26,
+						"y": 54,
+						"w": 36,
+						"h": 59
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 36,
+						"h": 59
+					}
+				},
+				{
+					"filename": "walk2.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 128,
+						"h": 128
+					},
+					"spriteSourceSize": {
+						"x": 24,
+						"y": 55,
+						"w": 38,
+						"h": 58
+					},
+					"frame": {
+						"x": 39,
+						"y": 1,
+						"w": 38,
+						"h": 58
+					}
+				},
+				{
+					"filename": "walk4.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 128,
+						"h": 128
+					},
+					"spriteSourceSize": {
+						"x": 26,
+						"y": 55,
+						"w": 37,
+						"h": 58
+					},
+					"frame": {
+						"x": 79,
+						"y": 1,
+						"w": 37,
+						"h": 58
+					}
+				},
+				{
+					"filename": "walk6.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 128,
+						"h": 128
+					},
+					"spriteSourceSize": {
+						"x": 23,
+						"y": 54,
+						"w": 39,
+						"h": 57
+					},
+					"frame": {
+						"x": 118,
+						"y": 1,
+						"w": 39,
+						"h": 57
+					}
+				},
+				{
+					"filename": "walk5.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 128,
+						"h": 128
+					},
+					"spriteSourceSize": {
+						"x": 26,
+						"y": 54,
+						"w": 36,
+						"h": 57
+					},
+					"frame": {
+						"x": 159,
+						"y": 1,
+						"w": 36,
+						"h": 57
+					}
+				},
+				{
+					"filename": "walk1.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 128,
+						"h": 128
+					},
+					"spriteSourceSize": {
+						"x": 24,
+						"y": 56,
+						"w": 53,
+						"h": 56
+					},
+					"frame": {
+						"x": 197,
+						"y": 1,
+						"w": 53,
+						"h": 56
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:8c60f554db05e922fe3b15cc2e188bbd:07de130b5c38d86e7fa5042ca99bd348:4685977544d81c023dc37faa00e6954f$"
+	}
+}
