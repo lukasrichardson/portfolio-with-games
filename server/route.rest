@@ -1,0 +1,25 @@
+GET http://localhost:6969/users
+
+###
+GET http://localhost:6969/users/5fa709d64744f7834cecaedc
+###
+POST http://localhost:6969/users
+Content-Type: application/json
+
+{
+    "name": "Lukas Test1"
+}
+
+###
+DELETE http://localhost:6969/users/5fa7298cee006b853cc312a7
+
+###
+PATCH http://localhost:6969/users/5fa71752016d067554ec4520
+Content-Type: application/json
+
+{
+    "name": "Lukas Test"
+}
+
+###
+DELETE http://localhost:6969/users/all

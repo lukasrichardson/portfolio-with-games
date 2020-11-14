@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import startGame from '../../game';
+import startGame from '../../game1/startGame';
+import JoinModal from '../JoinModal';
 
 class Play extends Component {
-    constructor(props) {
-        super(props);
+    constructor() {
+        super();
         this.state = {};
-        this.game= null;
     }
 
     componentDidMount() {
@@ -15,13 +15,14 @@ class Play extends Component {
 
     componentWillUnmount = () => {
         this.game.shouldDestroy = true;
-        // this.game ? this.game.destroy() : null;
-        console.log('unmount', this,game);
     }
 
     render() {
         return (
-            <div id='game' />
+            <>
+                <div id='game'/>
+                <JoinModal/>
+            </>
         )
     }
 }

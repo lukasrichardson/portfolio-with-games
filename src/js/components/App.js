@@ -7,16 +7,24 @@ import {
 } from 'react-router-dom';
 import NavBar from './NavBar';
 import Play from './Pages/Play';
+import Play2 from './Pages/Play2';
 import Home from './Pages/Home';
 
 const routes = [
     {
         path: '/home',
-        component: Home
+        component: Home,
+        name: 'Home'
     },
     {
         path: '/play',
-        component: Play
+        component: Play,
+        name: 'Game 1'
+    },
+    {
+        path: '/play2',
+        component: Play2,
+        name: 'Game 2'
     }
 ]
 
@@ -29,7 +37,7 @@ class App extends Component {
     render() {
         return (
             <Router>
-                <NavBar />
+                <NavBar routes={routes}/>
                 <Switch>
                     {routes.map( (item, index) => (
                         <Route key={index} path={item.path} exact component={item.component} />
