@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import startGame from '../../startGame';
+import startGame from '../../game1/startGame';
 import JoinModal from '../JoinModal';
 
 class Play extends Component {

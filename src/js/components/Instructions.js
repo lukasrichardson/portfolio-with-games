@@ -4,15 +4,15 @@ import { Carousel } from 'antd';
 const carouselSlides = [
     {
         name: 1,
-        content: 'Use the Arrow keys to run on platforms. Press Space to jump.'
+        content: 'Use the Arrow keys to run on platforms. Press the Up arrow to jump.'
     },
     {
         name: 2,
-        content: 'Avoid enemies and bombs while collecting stars to earn points. Click to shoot and kill enemies and bombs. The further you aim the faster your bullet will go.'
+        content: 'Click to shoot and kill enemies. The further you aim the faster your bullet will go.'
     },
     {
         name: 3,
-        content: 'If you get hit by an enemy or a bomb you will take damage. If your health reaches 0 you will die.'
+        content: 'If you get hit by an enemy you will take damage. If your health reaches 0 you will die.'
     }
 ]
 
