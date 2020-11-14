@@ -1,7 +1,6 @@
 
 // import Phaser from 'phaser';
 import gameConstants from '../../constants/game2.constants';
-//@ts-ignore
 
 const { SCENES } = gameConstants;
 
@@ -59,7 +58,9 @@ class MainScene extends Phaser.Scene {
             if (menuElement){
                 if (this.interact.text) {
                     const menuText = menuElement.querySelector('span');
+                    //@ts-ignore
                     if (menuElement.style.display === 'none') {
+                        //@ts-ignore
                         menuElement.style.display = 'block';
                         if (menuText) {
                             menuText.innerText = this.interact.text;
@@ -67,13 +68,16 @@ class MainScene extends Phaser.Scene {
                     } else {
                         if (menuText) {
                             if (menuText.innerText === this.interact.text) {
+                                //@ts-ignore
                                 menuElement.style.display = 'none';
                             } else {
                                 menuText.innerText = this.interact.text;
                             }
                         }
                     }
+                    //@ts-ignore
                 } else if (menuElement.style.display === 'block') {
+                    //@ts-ignore
                     menuElement.style.display = 'none';
                 }
             }
