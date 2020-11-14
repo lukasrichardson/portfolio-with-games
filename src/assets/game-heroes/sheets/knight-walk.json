@@ -4,11 +4,36 @@
 			"image": "knight-walk.png",
 			"format": "RGBA8888",
 			"size": {
-				"w": 251,
+				"w": 502,
 				"h": 61
 			},
 			"scale": 1,
 			"frames": [
+				{
+					"filename": "left-walk3.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 128,
+						"h": 128
+					},
+					"spriteSourceSize": {
+						"x": 66,
+						"y": 54,
+						"w": 36,
+						"h": 59
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 36,
+						"h": 59
+					},
+					"anchor": {
+						"x": 0.6484375,
+						"y": 0.6953125
+					}
+				},
 				{
 					"filename": "walk3.png",
 					"rotated": false,
@@ -24,10 +49,39 @@
 						"h": 59
 					},
 					"frame": {
-						"x": 1,
+						"x": 39,
 						"y": 1,
 						"w": 36,
 						"h": 59
+					},
+					"anchor": {
+						"x": 0.3359375,
+						"y": 0.6953125
+					}
+				},
+				{
+					"filename": "left-walk2.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 128,
+						"h": 128
+					},
+					"spriteSourceSize": {
+						"x": 66,
+						"y": 55,
+						"w": 38,
+						"h": 58
+					},
+					"frame": {
+						"x": 77,
+						"y": 1,
+						"w": 38,
+						"h": 58
+					},
+					"anchor": {
+						"x": 0.6484375,
+						"y": 0.6953125
 					}
 				},
 				{
@@ -45,10 +99,39 @@
 						"h": 58
 					},
 					"frame": {
-						"x": 39,
+						"x": 117,
 						"y": 1,
 						"w": 38,
 						"h": 58
+					},
+					"anchor": {
+						"x": 0.3359375,
+						"y": 0.6953125
+					}
+				},
+				{
+					"filename": "left-walk4.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 128,
+						"h": 128
+					},
+					"spriteSourceSize": {
+						"x": 65,
+						"y": 55,
+						"w": 37,
+						"h": 58
+					},
+					"frame": {
+						"x": 157,
+						"y": 1,
+						"w": 37,
+						"h": 58
+					},
+					"anchor": {
+						"x": 0.6484375,
+						"y": 0.6953125
 					}
 				},
 				{
@@ -66,10 +149,39 @@
 						"h": 58
 					},
 					"frame": {
-						"x": 79,
+						"x": 196,
 						"y": 1,
 						"w": 37,
 						"h": 58
+					},
+					"anchor": {
+						"x": 0.3359375,
+						"y": 0.6953125
+					}
+				},
+				{
+					"filename": "left-walk6.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 128,
+						"h": 128
+					},
+					"spriteSourceSize": {
+						"x": 66,
+						"y": 54,
+						"w": 39,
+						"h": 57
+					},
+					"frame": {
+						"x": 235,
+						"y": 1,
+						"w": 39,
+						"h": 57
+					},
+					"anchor": {
+						"x": 0.6484375,
+						"y": 0.6953125
 					}
 				},
 				{
@@ -87,10 +199,39 @@
 						"h": 57
 					},
 					"frame": {
-						"x": 118,
+						"x": 276,
 						"y": 1,
 						"w": 39,
 						"h": 57
+					},
+					"anchor": {
+						"x": 0.3359375,
+						"y": 0.6953125
+					}
+				},
+				{
+					"filename": "left-walk5.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 128,
+						"h": 128
+					},
+					"spriteSourceSize": {
+						"x": 66,
+						"y": 54,
+						"w": 36,
+						"h": 57
+					},
+					"frame": {
+						"x": 317,
+						"y": 1,
+						"w": 36,
+						"h": 57
+					},
+					"anchor": {
+						"x": 0.6484375,
+						"y": 0.6953125
 					}
 				},
 				{
@@ -108,10 +249,39 @@
 						"h": 57
 					},
 					"frame": {
-						"x": 159,
+						"x": 355,
 						"y": 1,
 						"w": 36,
 						"h": 57
+					},
+					"anchor": {
+						"x": 0.3359375,
+						"y": 0.6953125
+					}
+				},
+				{
+					"filename": "left-walk1.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 128,
+						"h": 128
+					},
+					"spriteSourceSize": {
+						"x": 51,
+						"y": 56,
+						"w": 53,
+						"h": 56
+					},
+					"frame": {
+						"x": 393,
+						"y": 1,
+						"w": 53,
+						"h": 56
+					},
+					"anchor": {
+						"x": 0.6484375,
+						"y": 0.6953125
 					}
 				},
 				{
@@ -129,10 +299,14 @@
 						"h": 56
 					},
 					"frame": {
-						"x": 197,
+						"x": 448,
 						"y": 1,
 						"w": 53,
 						"h": 56
+					},
+					"anchor": {
+						"x": 0.3359375,
+						"y": 0.6953125
 					}
 				}
 			]
@@ -141,6 +315,6 @@
 	"meta": {
 		"app": "https://www.codeandweb.com/texturepacker",
 		"version": "3.0",
-		"smartupdate": "$TexturePacker:SmartUpdate:8c60f554db05e922fe3b15cc2e188bbd:07de130b5c38d86e7fa5042ca99bd348:4685977544d81c023dc37faa00e6954f$"
+		"smartupdate": "$TexturePacker:SmartUpdate:6b948965735375645f2f82a37e551b48:d7b3bfc9f7ca30d722b1c8dcf64b6829:4685977544d81c023dc37faa00e6954f$"
 	}
 }
