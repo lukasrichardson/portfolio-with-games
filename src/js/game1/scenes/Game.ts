@@ -250,8 +250,8 @@ class MainScene extends Phaser.Scene {
         // ADD ENEMY
         const enemy = this.physics.add.sprite(playerInfo.x, playerInfo.y, 'dude').setScale(0.5);
         enemy.setPosition(playerInfo.x, playerInfo.y);
-        //@ts-ignore
         enemy.playerId = playerInfo.playerId;
+        //@ts-ignore
         if (this.platforms) this.physics.add.collider(enemy, this.platforms);
         if (this.otherPlayers) this.otherPlayers.add(enemy);
     }
