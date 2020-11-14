@@ -181,26 +181,11 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
-            <key type="filename">PNG/Knight/Walk/left-walk1.png</key>
-            <key type="filename">PNG/Knight/Walk/left-walk2.png</key>
-            <key type="filename">PNG/Knight/Walk/left-walk3.png</key>
-            <key type="filename">PNG/Knight/Walk/left-walk4.png</key>
-            <key type="filename">PNG/Knight/Walk/left-walk5.png</key>
-            <key type="filename">PNG/Knight/Walk/left-walk6.png</key>
-            <struct type="IndividualSpriteSettings">
-                <key>pivotPoint</key>
-                <point_f>0.648438,0.695313</point_f>
-                <key>spriteScale</key>
-                <double>1</double>
-                <key>scale9Enabled</key>
-                <false/>
-                <key>scale9Borders</key>
-                <rect>32,32,64,64</rect>
-                <key>scale9Paddings</key>
-                <rect>32,32,64,64</rect>
-                <key>scale9FromFile</key>
-                <false/>
-            </struct>
+            <key type="filename">PNG/Knight/Attack/attack0.png</key>
+            <key type="filename">PNG/Knight/Attack/attack1.png</key>
+            <key type="filename">PNG/Knight/Attack/attack2.png</key>
+            <key type="filename">PNG/Knight/Attack/attack3.png</key>
+            <key type="filename">PNG/Knight/Attack/attack4.png</key>
             <key type="filename">PNG/Knight/Walk/walk1.png</key>
             <key type="filename">PNG/Knight/Walk/walk2.png</key>
             <key type="filename">PNG/Knight/Walk/walk3.png</key>
@@ -221,10 +206,45 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
+            <key type="filename">PNG/Knight/Attack/left-attack0.png</key>
+            <key type="filename">PNG/Knight/Attack/left-attack1.png</key>
+            <key type="filename">PNG/Knight/Attack/left-attack2.png</key>
+            <key type="filename">PNG/Knight/Attack/left-attack3.png</key>
+            <key type="filename">PNG/Knight/Attack/left-attack4.png</key>
+            <key type="filename">PNG/Knight/Walk/left-walk1.png</key>
+            <key type="filename">PNG/Knight/Walk/left-walk2.png</key>
+            <key type="filename">PNG/Knight/Walk/left-walk3.png</key>
+            <key type="filename">PNG/Knight/Walk/left-walk4.png</key>
+            <key type="filename">PNG/Knight/Walk/left-walk5.png</key>
+            <key type="filename">PNG/Knight/Walk/left-walk6.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.648438,0.695313</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>32,32,64,64</rect>
+                <key>scale9Paddings</key>
+                <rect>32,32,64,64</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
         </map>
         <key>fileList</key>
         <array>
             <filename>PNG/Knight/Walk</filename>
+            <filename>PNG/Knight/Attack/attack0.png</filename>
+            <filename>PNG/Knight/Attack/attack1.png</filename>
+            <filename>PNG/Knight/Attack/attack2.png</filename>
+            <filename>PNG/Knight/Attack/attack3.png</filename>
+            <filename>PNG/Knight/Attack/attack4.png</filename>
+            <filename>PNG/Knight/Attack/left-attack1.png</filename>
+            <filename>PNG/Knight/Attack/left-attack2.png</filename>
+            <filename>PNG/Knight/Attack/left-attack3.png</filename>
+            <filename>PNG/Knight/Attack/left-attack4.png</filename>
+            <filename>PNG/Knight/Attack/left-attack0.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

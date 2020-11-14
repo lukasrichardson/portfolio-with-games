@@ -20,6 +20,7 @@ class MainScene extends Phaser.Scene {
     blueSpawn: any;
     container: Phaser.GameObjects.Container | any;
     spawns: Phaser.Physics.Arcade.Group | any;
+    timedEvent: Phaser.Time.TimerEvent | any;
     constructor() {
         super({
             key: SCENES.GAME
@@ -46,6 +47,7 @@ class MainScene extends Phaser.Scene {
     /* CREATE METHOD HELPER FUNCTIONS */
     addControls = () => {
         /*ADD CONTROLS*/
+        this.input.mouse.capture = true;
         this.cursors = this.input.keyboard.createCursorKeys();
         this.w_key = this.input.keyboard.addKey('W');
         this.a_key = this.input.keyboard.addKey('A');
@@ -113,9 +115,10 @@ class MainScene extends Phaser.Scene {
         // put player sprite inside a container that will control collisions and movement
         this.player = this.physics.add.sprite(0, 5, 'knight-walk', 'walk1.png').setScale(1, 1).setSize(36, 59).setOffset(65, 55);
         this.container = this.add.container(this.spawnPoint.x, this.spawnPoint.y);
-        this.container.setSize(36, 59).setScale(0.8, 0.8);
+        this.container.setSize(36, 49).setScale(0.8, 0.8);
         this.physics.world.enable(this.container);
         this.container.add(this.player);
+        // this.container.setOffset(0, 5);
         // container collides with world layer
         this.physics.add.collider(this.container, this.worldLayer, this.playerWorldCollisionHandler);
         //create player animations
@@ -139,6 +142,30 @@ class MainScene extends Phaser.Scene {
                 suffix: '.png',
                 start: 1,
                 end: 6
+            }),
+            repeat: -1
+    
+        });
+        this.anims.create({
+            key: 'attack-right',
+            frameRate: 10,
+            frames: this.anims.generateFrameNames('knight-walk', {
+                prefix: 'attack',
+                suffix: '.png',
+                start: 0,
+                end: 4
+            }),
+            repeat: -1
+    
+        });
+        this.anims.create({
+            key: 'attack-left',
+            frameRate: 10,
+            frames: this.anims.generateFrameNames('knight-walk', {
+                prefix: 'left-attack',
+                suffix: '.png',
+                start: 0,
+                end: 4
             }),
             repeat: -1
     
@@ -186,7 +213,48 @@ class MainScene extends Phaser.Scene {
         this.spawns.create(this.redSpawn.x, this.redSpawn.y, 'redEnemy');
         this.spawns.create(this.blueSpawn.x, this.blueSpawn.y, 'redEnemy');
         this.physics.add.collider(this.spawns, this.worldLayer/*, this.spawnsWorldCollisionHandler*/);
-        this.physics.add.collider(this.spawns, this.container);
+        this.physics.add.collider(this.spawns, this.container, (container, enemy) => {
+            if (container.list[0].anims.currentAnim === 'attacking-left' || container.list[0].anims.currentAnim === 'attacking-right') {
+                console.log('atacking enemy!', enemy);
+            }
+            console.log('collide with enemy', this.player.anims.currentAnim, container.list[0], enemy);
+        });
+        // this.physics.add.overlap(this.spawns, this.container);
+
+        this.timedEvent = this.time.addEvent({
+            delay: 3000,
+            callback: this.moveEnemies,
+            callbackScope: this,
+            loop: true
+        })
+    }
+
+    moveEnemies = () => {
+        this.spawns.getChildren().forEach((enemy: any) => {
+            const randomNumber = Math.floor((Math.random() * 4) + 1);
+
+            switch(randomNumber) {
+                case 1:
+                  enemy.body.setVelocityX(50);
+                  break;
+                case 2:
+                  enemy.body.setVelocityX(-50);
+                  break;
+                case 3:
+                  enemy.body.setVelocityY(50);
+                  break;
+                case 4:
+                  enemy.body.setVelocityY(-50);
+                  break;
+                default:
+                  enemy.body.setVelocityX(50);
+              }
+        });
+
+        setTimeout(() => {
+            this.spawns.setVelocityX(0);
+            this.spawns.setVelocityY(0);
+          }, 1000);
     }
 
     addDebugGraphics = () => {
@@ -231,21 +299,24 @@ class MainScene extends Phaser.Scene {
             const prevVelocity = this.container.body.velocity.clone();
             this.container.body.setVelocity(0);
             let isMoving = false;
-
+            let isAttacking = false;
+            let animToPlay = null;
+            const { key: currentAnimKey } = this.player.anims.currentAnim;
+            
             /*PLAYER MOVE HORIZONTAL*/
             if (/*this.cursors.left.isDown ||*/ this.a_key.isDown) {
                 isMoving = true;
                 this.container.body.setVelocityX(-100);
-                this.player.anims.play('left', true);
+                animToPlay = 'left';
                 this.player.setOffset(65, 55);
             } else if (/*this.cursors.right.isDown ||*/ this.d_key.isDown) {
                 isMoving = true;
                 this.container.body.setVelocityX(100);
-                this.player.anims.play('right', true);
+                animToPlay = 'right';
                 this.player.setOffset(25, 55);
             } else {
             }
-
+            
             /*PLAYER MOVE VERTICAL*/
             if (/*this.cursors.up.isDown ||*/ this.w_key.isDown) {
                 isMoving = true;
@@ -256,16 +327,30 @@ class MainScene extends Phaser.Scene {
             } else {
             }
 
-            if (!isMoving) {
+            // check if left mouse button i clicked
+            if (this.input.activePointer.isDown) {
+                // console.log('this.input', this.input.activePointer.x, this.input.activePointer.worldX, this.input.activePointer.downX, this.container.x)
+                if (this.container.x > this.input.activePointer.worldX) {
+                    animToPlay = 'attack-left';
+                } else {
+                    animToPlay = 'attack-right';
+                }
+                isAttacking = true;
+            }
+
+            if (!isMoving && !isAttacking) {
                 this.player.anims.stop();
-                if (prevVelocity.x < 0) {
-                    this.player.anims.play('idle-left');
+                if (prevVelocity.x < 0 || currentAnimKey === 'attack-left' || currentAnimKey === 'idle-left') {
+                    animToPlay = 'idle-left';
                     this.player.setOffset(65, 55);
                 }
-                else if (prevVelocity.x > 0) {
-                    this.player.anims.play('idle-right');
+                else {
+                    animToPlay = 'idle-right';
                     this.player.setOffset(25, 55);
                 }
+            }
+            if (animToPlay) {
+                this.player.anims.play(animToPlay, true);
             }
             // Normalize and scale the velocity so that player can't move faster along a diagonal
             this.container.body.velocity.normalize().scale(speed);
