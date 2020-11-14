@@ -13,6 +13,14 @@ class MainScene extends Phaser.Scene {
     d_key: Phaser.Input.Keyboard.Key | any;
     player: Phaser.Physics.Arcade.Sprite | any;
     interact: object | any
+    e_key: Phaser.Input.Keyboard.Key | any;
+    map: Phaser.Tilemaps.Tilemap | any;
+    worldLayer: any;
+    spawnPoint: any;
+    redSpawn: any;
+    blueSpawn: any;
+    container: Phaser.GameObjects.Container | any;
+    spawns: Phaser.Physics.Arcade.Group | any;
     constructor() {
         super({
             key: SCENES.GAME
@@ -50,14 +58,19 @@ class MainScene extends Phaser.Scene {
             const menuElement = document.querySelector('.text-menu');
             if (menuElement){
                 if (this.interact.text) {
+                    const menuText = menuElement.querySelector('span');
                     if (menuElement.style.display === 'none') {
                         menuElement.style.display = 'block';
-                        menuElement.querySelector('span').innerText = this.interact.text;
+                        if (menuText) {
+                            menuText.innerText = this.interact.text;
+                        }
                     } else {
-                        if (menuElement.querySelector('span').innerText === this.interact.text) {
-                            menuElement.style.display = 'none';
-                        } else {
-                            menuElement.querySelector('span').innerText = this.interact.text;
+                        if (menuText) {
+                            if (menuText.innerText === this.interact.text) {
+                                menuElement.style.display = 'none';
+                            } else {
+                                menuText.innerText = this.interact.text;
+                            }
                         }
                     }
                 } else if (menuElement.style.display === 'block') {
@@ -87,9 +100,9 @@ class MainScene extends Phaser.Scene {
 
         // Object layers in Tiled let you embed extra info into a map - like a spawn point or custom
         // collision shapes. In the tmx file, there's an object layer with a point named "Spawn Point"
-        this.spawnPoint = this.map.findObject("Objects", obj => obj.name === "Spawn Point");
-        this.redSpawn = this.map.findObject("Objects", obj => obj.name === "Red Spawn");
-        this.blueSpawn = this.map.findObject("Objects", obj => obj.name === "Blue Spawn");
+        this.spawnPoint = this.map.findObject("Objects", (obj: any) => obj.name === "Spawn Point");
+        this.redSpawn = this.map.findObject("Objects", (obj: any) => obj.name === "Red Spawn");
+        this.blueSpawn = this.map.findObject("Objects", (obj: any) => obj.name === "Blue Spawn");
     }
 
     addPlayer = () => {
@@ -168,13 +181,13 @@ class MainScene extends Phaser.Scene {
         // create enemies
         this.spawns.create(this.redSpawn.x, this.redSpawn.y, 'redEnemy');
         this.spawns.create(this.blueSpawn.x, this.blueSpawn.y, 'redEnemy');
-        this.physics.add.collider(this.spawns, this.worldLayer, this.spawnsWorldCollisionHandler);
+        this.physics.add.collider(this.spawns, this.worldLayer/*, this.spawnsWorldCollisionHandler*/);
         this.physics.add.collider(this.spawns, this.container);
     }
 
     addDebugGraphics = () => {
         // Add Debug graphics
-        this.input.keyboard.once("keydown_K", event => {
+        this.input.keyboard.once("keydown_K", (event: any) => {
             // Turn on physics debugging to show player's hitbox
             this.physics.world.createDebugGraphic();
 
@@ -191,7 +204,7 @@ class MainScene extends Phaser.Scene {
         });
     }
     
-    playerWorldCollisionHandler = (player, world) => {
+    playerWorldCollisionHandler = (player: any, world: any) => {
         if (world.properties.text) {
             if (!this.interact.text !== world.properties.text)
             this.interact = {
@@ -200,8 +213,8 @@ class MainScene extends Phaser.Scene {
         }
     }
 
-    spawnWorldCollisionHandler = (spawn, world) => {
-    }
+    // spawnsWorldCollisionHandler = (spawn, world) => {
+    // }
 
     update(time: any, delta: any) {
         //@ts-ignore
