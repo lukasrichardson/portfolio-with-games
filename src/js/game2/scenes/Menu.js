@@ -1,4 +1,3 @@
-import React from 'react';
 import gameConstants from '../../constants/game2.constants';
 
 const { SCENES } = gameConstants;
@@ -15,6 +14,7 @@ class MenuScene extends Phaser.Scene {
 
     create() {
         this.scene.start(SCENES.GAME);
+        this.scene.start(SCENES.HUD);
     }
 
     update() {

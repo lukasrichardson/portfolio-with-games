@@ -7,6 +7,11 @@ export default {
     SCENES: {
         GAME: 'GAME',
         LOAD: 'LOAD',
-        MENU: 'MENU'
-    }
+        MENU: 'MENU',
+        HUD: 'HUD'
+    },
+    ANIMATIONS: {
+
+    },
+    defaultSpeed: 175
 }

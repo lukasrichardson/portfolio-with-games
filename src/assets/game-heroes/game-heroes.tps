@@ -181,11 +181,19 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
-            <key type="filename">PNG/Knight/Attack/attack0.png</key>
-            <key type="filename">PNG/Knight/Attack/attack1.png</key>
-            <key type="filename">PNG/Knight/Attack/attack2.png</key>
-            <key type="filename">PNG/Knight/Attack/attack3.png</key>
-            <key type="filename">PNG/Knight/Attack/attack4.png</key>
+            <key type="filename">PNG/Knight/Attack/auto_attack0.png</key>
+            <key type="filename">PNG/Knight/Attack/auto_attack1.png</key>
+            <key type="filename">PNG/Knight/Attack/auto_attack2.png</key>
+            <key type="filename">PNG/Knight/Attack/auto_attack3.png</key>
+            <key type="filename">PNG/Knight/Attack/auto_attack4.png</key>
+            <key type="filename">PNG/Knight/Attack_Extra/attack_extra1.png</key>
+            <key type="filename">PNG/Knight/Attack_Extra/attack_extra2.png</key>
+            <key type="filename">PNG/Knight/Attack_Extra/attack_extra3.png</key>
+            <key type="filename">PNG/Knight/Attack_Extra/attack_extra4.png</key>
+            <key type="filename">PNG/Knight/Attack_Extra/attack_extra5.png</key>
+            <key type="filename">PNG/Knight/Attack_Extra/attack_extra6.png</key>
+            <key type="filename">PNG/Knight/Attack_Extra/attack_extra7.png</key>
+            <key type="filename">PNG/Knight/Attack_Extra/attack_extra8.png</key>
             <key type="filename">PNG/Knight/Walk/walk1.png</key>
             <key type="filename">PNG/Knight/Walk/walk2.png</key>
             <key type="filename">PNG/Knight/Walk/walk3.png</key>
@@ -206,11 +214,19 @@
                 <key>scale9FromFile</key>
                 <false/>
             </struct>
-            <key type="filename">PNG/Knight/Attack/left-attack0.png</key>
-            <key type="filename">PNG/Knight/Attack/left-attack1.png</key>
-            <key type="filename">PNG/Knight/Attack/left-attack2.png</key>
-            <key type="filename">PNG/Knight/Attack/left-attack3.png</key>
-            <key type="filename">PNG/Knight/Attack/left-attack4.png</key>
+            <key type="filename">PNG/Knight/Attack/auto_left-attack0.png</key>
+            <key type="filename">PNG/Knight/Attack/auto_left-attack1.png</key>
+            <key type="filename">PNG/Knight/Attack/auto_left-attack2.png</key>
+            <key type="filename">PNG/Knight/Attack/auto_left-attack3.png</key>
+            <key type="filename">PNG/Knight/Attack/auto_left-attack4.png</key>
+            <key type="filename">PNG/Knight/Attack_Extra/left-attack_extra1.png</key>
+            <key type="filename">PNG/Knight/Attack_Extra/left-attack_extra2.png</key>
+            <key type="filename">PNG/Knight/Attack_Extra/left-attack_extra3.png</key>
+            <key type="filename">PNG/Knight/Attack_Extra/left-attack_extra4.png</key>
+            <key type="filename">PNG/Knight/Attack_Extra/left-attack_extra5.png</key>
+            <key type="filename">PNG/Knight/Attack_Extra/left-attack_extra6.png</key>
+            <key type="filename">PNG/Knight/Attack_Extra/left-attack_extra7.png</key>
+            <key type="filename">PNG/Knight/Attack_Extra/left-attack_extra8.png</key>
             <key type="filename">PNG/Knight/Walk/left-walk1.png</key>
             <key type="filename">PNG/Knight/Walk/left-walk2.png</key>
             <key type="filename">PNG/Knight/Walk/left-walk3.png</key>
@@ -235,16 +251,32 @@
         <key>fileList</key>
         <array>
             <filename>PNG/Knight/Walk</filename>
-            <filename>PNG/Knight/Attack/attack0.png</filename>
-            <filename>PNG/Knight/Attack/attack1.png</filename>
-            <filename>PNG/Knight/Attack/attack2.png</filename>
-            <filename>PNG/Knight/Attack/attack3.png</filename>
-            <filename>PNG/Knight/Attack/attack4.png</filename>
-            <filename>PNG/Knight/Attack/left-attack1.png</filename>
-            <filename>PNG/Knight/Attack/left-attack2.png</filename>
-            <filename>PNG/Knight/Attack/left-attack3.png</filename>
-            <filename>PNG/Knight/Attack/left-attack4.png</filename>
-            <filename>PNG/Knight/Attack/left-attack0.png</filename>
+            <filename>PNG/Knight/Attack_Extra/attack_extra1.png</filename>
+            <filename>PNG/Knight/Attack_Extra/attack_extra2.png</filename>
+            <filename>PNG/Knight/Attack_Extra/attack_extra3.png</filename>
+            <filename>PNG/Knight/Attack_Extra/attack_extra4.png</filename>
+            <filename>PNG/Knight/Attack_Extra/attack_extra5.png</filename>
+            <filename>PNG/Knight/Attack_Extra/attack_extra6.png</filename>
+            <filename>PNG/Knight/Attack_Extra/attack_extra7.png</filename>
+            <filename>PNG/Knight/Attack_Extra/attack_extra8.png</filename>
+            <filename>PNG/Knight/Attack_Extra/left-attack_extra1.png</filename>
+            <filename>PNG/Knight/Attack_Extra/left-attack_extra2.png</filename>
+            <filename>PNG/Knight/Attack_Extra/left-attack_extra3.png</filename>
+            <filename>PNG/Knight/Attack_Extra/left-attack_extra4.png</filename>
+            <filename>PNG/Knight/Attack_Extra/left-attack_extra5.png</filename>
+            <filename>PNG/Knight/Attack_Extra/left-attack_extra6.png</filename>
+            <filename>PNG/Knight/Attack_Extra/left-attack_extra7.png</filename>
+            <filename>PNG/Knight/Attack_Extra/left-attack_extra8.png</filename>
+            <filename>PNG/Knight/Attack/auto_attack0.png</filename>
+            <filename>PNG/Knight/Attack/auto_attack1.png</filename>
+            <filename>PNG/Knight/Attack/auto_attack2.png</filename>
+            <filename>PNG/Knight/Attack/auto_attack3.png</filename>
+            <filename>PNG/Knight/Attack/auto_attack4.png</filename>
+            <filename>PNG/Knight/Attack/auto_left-attack0.png</filename>
+            <filename>PNG/Knight/Attack/auto_left-attack1.png</filename>
+            <filename>PNG/Knight/Attack/auto_left-attack2.png</filename>
+            <filename>PNG/Knight/Attack/auto_left-attack3.png</filename>
+            <filename>PNG/Knight/Attack/auto_left-attack4.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

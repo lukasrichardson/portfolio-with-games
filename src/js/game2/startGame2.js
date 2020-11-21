@@ -4,6 +4,7 @@ import gameConstants from '../constants/game2.constants';
 import Load from './scenes/Load';
 import Game from './scenes/Game';
 import Menu from './scenes/Menu';
+import HUD from './scenes/HUD';
 
 const { width, height, gravity } = gameConstants;
 
@@ -19,7 +20,7 @@ var config = {
         }
     },
     // pixelArt: true,
-    scene: [Load, Menu, Game]
+    scene: [Load, Menu, Game, HUD]
 };
 
 const startGame = () => new Phaser.Game(config);

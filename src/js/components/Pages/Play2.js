@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import startGame2 from '../../game2/startGame2';
 import TextMenu from '../TextMenu';
+import HudUi from '../HudUi';
 
 class Play2 extends Component {
     constructor() {
@@ -19,10 +20,11 @@ class Play2 extends Component {
 
     render() {
         return (
-            <>
+            <div className='game2Container'>
                 <div id='game2'/>
                 <TextMenu />
-            </>
+                <HudUi />
+            </div>
         )
     }
 }

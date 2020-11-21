@@ -1,8 +1,10 @@
 
 // import Phaser from 'phaser';
 import gameConstants from '../../constants/game2.constants';
+//@ts-ignore
+import eventsCenter from '../../EventsCenter.js';
 
-const { SCENES } = gameConstants;
+const { SCENES, defaultSpeed } = gameConstants;
 
 class MainScene extends Phaser.Scene {
     cursors: Phaser.Types.Input.Keyboard.CursorKeys | any;
@@ -22,11 +24,28 @@ class MainScene extends Phaser.Scene {
     spawns: Phaser.Physics.Arcade.Group | any;
     timedEvent: Phaser.Time.TimerEvent | any;
     hitBox: Phaser.Physics.Arcade.Sprite | any;
+    shift: any;
+    isExtraAttacking: string | any;
+    isAutoAttacking: string | any;
+    cooldown1: any;
+    redEnemy: any;
+    blueEnemy: any;
+    cooldownAuto: any;
+    redEnemyBar: Phaser.GameObjects.Graphics | any;
+    redEnemyContainer: Phaser.GameObjects.Container | any;
+    blueEnemyBar: Phaser.GameObjects.Graphics | any;
+    hitBy: any
+    playerStats: {
+        health: number;
+        totalHealth: number;
+    } | any;
     constructor() {
         super({
             key: SCENES.GAME
         });
-        this.interact = {};
+        this.interact = {
+            text: 'yooooo'
+        };
     }
 
     init(data: any) {
@@ -40,6 +59,7 @@ class MainScene extends Phaser.Scene {
         
         this.addControls();
         this.createMapLayers();
+        this.addPlayerAnims();
         this.addPlayer();
         this.spawnEnemies();
         this.addDebugGraphics();
@@ -85,6 +105,7 @@ class MainScene extends Phaser.Scene {
                 }
             }
         });
+        this.shift = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
     }
 
     createMapLayers = () => {
@@ -112,19 +133,7 @@ class MainScene extends Phaser.Scene {
         this.blueSpawn = this.map.findObject("Objects", (obj: any) => obj.name === "Blue Spawn");
     }
 
-    addPlayer = () => {
-        //create container for player sprites / hitboxes
-        this.container = this.add.container(this.spawnPoint.x, this.spawnPoint.y);
-        this.container.setSize(36, 49).setScale(0.8, 0.8);
-        this.physics.world.enable(this.container);
-        // put player sprite inside a container that will control collisions and movement
-        this.player = this.physics.add.sprite(0, 5, 'knight-walk', 'walk1.png').setScale(1, 1).setSize(36, 49).setOffset(65, 60);
-        
-        this.hitBox = this.physics.add.sprite(0, 5, 'hitbox').setScale(1, 1).setSize(0, 0).setVisible(false);
-        this.container.add([this.player, this.hitBox]);
-        // this.container.setOffset(0, 5);
-        // container collides with world layer
-        this.physics.add.collider(this.container, this.worldLayer, this.playerWorldCollisionHandler);
+    addPlayerAnims = () => {
         //create player animations
         this.anims.create({
             key: 'right',
@@ -136,7 +145,7 @@ class MainScene extends Phaser.Scene {
                 end: 6
             }),
             repeat: -1
-    
+
         });
         this.anims.create({
             key: 'left',
@@ -148,31 +157,31 @@ class MainScene extends Phaser.Scene {
                 end: 6
             }),
             repeat: -1
-    
+
         });
         this.anims.create({
             key: 'attack-right',
             frameRate: 10,
             frames: this.anims.generateFrameNames('knight-walk', {
-                prefix: 'attack',
+                prefix: 'auto_attack',
                 suffix: '.png',
                 start: 0,
                 end: 4
             }),
             repeat: -1
-    
+
         });
         this.anims.create({
             key: 'attack-left',
             frameRate: 10,
             frames: this.anims.generateFrameNames('knight-walk', {
-                prefix: 'left-attack',
+                prefix: 'auto_left-attack',
                 suffix: '.png',
                 start: 0,
                 end: 4
             }),
             repeat: -1
-    
+
         });
         this.anims.create({
             key: 'idle-left',
@@ -184,7 +193,7 @@ class MainScene extends Phaser.Scene {
                 end: 1
             }),
             repeat: -1
-    
+
         });
         this.anims.create({
             key: 'idle-right',
@@ -196,8 +205,54 @@ class MainScene extends Phaser.Scene {
                 end: 1
             }),
             repeat: -1
-    
+
         });
+        this.anims.create({
+            key: 'attack-extra-left',
+            frameRate: 10,
+            frames: this.anims.generateFrameNames('knight-walk', {
+                prefix: 'left-attack_extra',
+                suffix: '.png',
+                start: 1,
+                end: 8
+            }),
+            repeat: -1
+
+        });
+        this.anims.create({
+            key: 'attack-extra-right',
+            frameRate: 10,
+            frames: this.anims.generateFrameNames('knight-walk', {
+                prefix: 'attack_extra',
+                suffix: '.png',
+                start: 1,
+                end: 8
+            }),
+            repeat: -1
+
+        });
+    }
+
+    addPlayer = () => {
+        //create container for player sprites / hitboxes
+        this.container = this.add.container(this.spawnPoint.x, this.spawnPoint.y);
+        this.container.setSize(36, 49).setScale(0.8, 0.8);
+        this.physics.world.enable(this.container);
+        // add damage player has taken to scene instance data
+        this.hitBy = {};
+        // put player sprite inside a container that will control collisions and movement
+        this.player = this.physics.add.sprite(0, 5, 'knight-walk', 'walk1.png').setScale(1, 1).setSize(36, 49).setOffset(65, 60);
+        this.playerStats = {
+            health: 100,
+            totalHealth: 100
+        }
+    
+        this.hitBox = this.physics.add.sprite(0, 5, 'hitbox').setScale(1, 1).setSize(0, 0).setVisible(false);
+        this.container.add([this.player, this.hitBox]);
+
+        // container collides with world layer
+        this.physics.add.collider(this.container, this.worldLayer, this.playerWorldCollisionHandler);
+        
         // start with idle animation
         this.player.anims.play('idle-left');
         // Phaser supports multiple cameras, but you can access the default camera like this:
@@ -205,6 +260,10 @@ class MainScene extends Phaser.Scene {
         // Constrain the camera so that it isn't allowed to move outside the width/height of tilemap
         camera.startFollow(this.container);
         camera.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
+
+        if (this.spawns) {
+            this.addEnemyInteractions();
+        }
     }
 
     spawnEnemies = () => {
@@ -214,52 +273,94 @@ class MainScene extends Phaser.Scene {
             immovable: true
         });
         // create enemies
-        this.spawns.create(this.redSpawn.x, this.redSpawn.y, 'redEnemy');
-        this.spawns.create(this.blueSpawn.x, this.blueSpawn.y, 'redEnemy');
+        this.redEnemy = this.spawns.create(this.redSpawn.x, this.redSpawn.y, 'redEnemy');
+        this.redEnemy.healthBar = {
+            current: 100,
+            total: 100,
+            immune: false,
+            name: 'redEnemyBar'
+        };
+        this.redEnemyBar = this.add.graphics();
+        this.redEnemyBar.fillStyle(0x2ecc71, 1);
+        this.redEnemyBar.fillRect(0, 0, 20, 5);
+        this.redEnemyBar.x = this.redSpawn.x;
+        this.redEnemyBar.y = this.redSpawn.y;
+        this.redEnemyBar.setDepth(50);
+
+        // this.redEnemyContainer = this.add.container(this.redSpawn.x, this.redSpawn.y);
+        // this.redEnemyContainer.setSize(36, 49);
+        // this.redEnemyContainer.add(this.redEnemyBar);
+
+        this.blueEnemy = this.spawns.create(this.blueSpawn.x, this.blueSpawn.y, 'redEnemy');
+        this.blueEnemy.healthBar = {
+            current: 100,
+            total: 100,
+            immune: false,
+            name: 'blueEnemyBar'
+        };
+        this.blueEnemyBar = this.add.graphics();
+        this.blueEnemyBar.fillStyle(0x2ecc71, 1);
+        this.blueEnemyBar.fillRect(0, 0, 20, 5);
+        this.blueEnemyBar.x = this.redSpawn.x;
+        this.blueEnemyBar.y = this.redSpawn.y;
+        this.blueEnemyBar.setDepth(50);
 
         // add collider for map and enemies
         this.physics.add.collider(this.spawns, this.worldLayer/*, this.spawnsWorldCollisionHandler*/);
 
-        // add attack logic for player hitting enemy
-        this.physics.add.overlap(this.spawns, this.container, (container, enemy) => {
-            const { currentAnim, currentFrame } = container.list[0].anims;
-            const { name } = currentFrame.frame;
-            if (name.includes('attack2') || name.includes('attack3') || name.includes('attack4')) {
-                enemy.destroy();
-                // if (name.includes('left') && enemy.body.x <= container.body.x) {
-                    // enemy.destroy();
-                // } else if (!name.includes('left') && enemy.body.x >= container.body.x) {
-                //     enemy.destroy();
-                // } else if (Math.abs(enemy.body.y - container.body.y) <= 20) {
-                    // enemy.destroy();
-                // }
-            }
-        });
-
-        this.physics.add.overlap(this.spawns, this.hitBox, (hitBox, enemy) => {
-            console.log('hitbox overlap', hitBox, enemy.texture.key, enemy);
-            const { parentContainer } = hitBox;
-            const { currentAnim, currentFrame } = parentContainer.list[0].anims;
-            const { name } = currentFrame.frame;
-            if (name.includes('attack2') || name.includes('attack3') || name.includes('attack4')) {
-                enemy.destroy();
-                // if (name.includes('left') && enemy.body.x <= parentContainer.body.x) {
-                //     enemy.destroy();
-                // } else if (!name.includes('left') && enemy.body.x >= parentContainer.body.x) {
-                //     enemy.destroy();
-                // }
-                // else if (Math.abs(enemy.body.y - parentContainer.body.y) <= 20) {
-                //     enemy.destroy();
-                // }
-            }
-        });
+        this.addEnemyInteractions();
 
         this.timedEvent = this.time.addEvent({
-            delay: 3000,
+            delay: 600,
             callback: this.moveEnemies,
             callbackScope: this,
             loop: true
         })
+    }
+
+    addEnemyInteractions = () => {
+        // add attack logic for player hitting enemy
+        this.physics.add.overlap(this.spawns, this.hitBox, this.hitEnemy);
+
+        // collision logic with enemy and player container
+        this.physics.add.collider(this.spawns, this.container, this.collideWithEnemy);
+    }
+
+    hitEnemy = (hitBox: any, enemy: any) => {
+        const { parentContainer } = hitBox;
+        const { currentFrame } = parentContainer.list[0].anims;
+        const { name: frameName } = currentFrame.frame;
+        const { name } = enemy.healthBar;
+        //@ts-ignore
+        let enemyHealthBar = this[name];
+        
+        let damage = 0;
+        if (frameName.includes('attack2') || frameName.includes('attack3') || frameName.includes('attack4')) {//auto attack
+            damage += 10;
+        } else if (frameName.includes('attack_extra5') || frameName.includes('attack_extra6') || frameName.includes('attack_extra7')) {//extra attack
+            damage += 25;
+        }
+        if (damage > 0 && !enemy.healthBar.immune) {
+            enemy.healthBar = {
+                ...enemy.healthBar,
+                current: enemy.healthBar.current - damage,
+                immune: true
+            };
+            if (enemyHealthBar) {
+                enemyHealthBar.scaleX = (enemy.healthBar.current) / 100;
+            }
+            enemy.setTint(0xFF0000);
+            this.time.delayedCall(500, () => {
+                enemy.healthBar = {
+                    ...enemy.healthBar,
+                    immune: false
+                };
+                enemy.clearTint();
+            }, undefined, this);
+        }
+        if (enemy.healthBar.current <= 0) {
+            enemy.destroy();
+        }
     }
 
     moveEnemies = () => {
@@ -287,7 +388,7 @@ class MainScene extends Phaser.Scene {
         setTimeout(() => {
             this.spawns.setVelocityX(0);
             this.spawns.setVelocityY(0);
-          }, 2500);
+          }, 500);
     }
 
     addDebugGraphics = () => {
@@ -318,23 +419,38 @@ class MainScene extends Phaser.Scene {
         }
     }
 
-    // spawnsWorldCollisionHandler = (spawn, world) => {
-    // }
+    collideWithEnemy = (container: any, enemy: any) => {
+        const { name } = enemy.healthBar;
+        if (!this.hitBy[name]) {
+            this.hitBy[name] = name;
+            this.playerStats.health -= 10;
+            eventsCenter.emit('damage', this.playerStats);
+            this.player.setTint(0xFF0000);
+            this.time.delayedCall(500, () => {
+                delete this.hitBy[name];
+                this.player.clearTint();
+            }, undefined, this);
+        } else {
+        }
+    }
 
     update(time: any, delta: any) {
+        // get animation key of current gamelpay frame
+        
         //@ts-ignore
         if (this.game.shouldDestroy === true) {
             this.game.destroy(false);
         }
-        //only apply updates once player container exists
-        if (this.container && this.hitBox) {
-            const speed = 175;
+        
+        //only apply updates once player container and hitbox exists
+        if (this.container && this.hitBox && this.player) {
+            const { key: currentAnimKey } = this.player.anims.currentAnim;
+            let speed = defaultSpeed; //default speed
             const prevVelocity = this.container.body.velocity.clone();
             this.container.body.setVelocity(0);
             let isMoving = false;
             let isAttacking = false;
             let animToPlay = null;
-            const { key: currentAnimKey } = this.player.anims.currentAnim;
             
             /*PLAYER MOVE HORIZONTAL*/
             if (/*this.cursors.left.isDown ||*/ this.a_key.isDown) {
@@ -358,35 +474,106 @@ class MainScene extends Phaser.Scene {
             } else {
             }
 
+            if (this.container.body.velocity.x === 0 && isMoving){
+                if (currentAnimKey.includes('right')) {
+                    animToPlay = 'right';
+                } else animToPlay = 'left';
+            }
+
             // check if left mouse button i clicked
-            if (this.input.activePointer.isDown) {
+            if (!this.isExtraAttacking && this.input.activePointer.isDown) {
                 if (this.container.x > this.input.activePointer.worldX) {
+                    if (this.isAutoAttacking !== 'right') this.isAutoAttacking = 'left';
+                } else {
+                    if (this.isAutoAttacking !== 'left') this.isAutoAttacking = 'right';
+                }
+            } else {
+                
+            }
+
+            if (this.isAutoAttacking) {
+                if (this.cooldownAuto) {
+                    const { delay, elapsed } = this.cooldownAuto;
+                    if (delay > elapsed) {
+                        this.isAutoAttacking = false;
+                    }
+                }
+                
+                if (this.isAutoAttacking === 'left') {
                     animToPlay = 'attack-left';
                     this.hitBox.setSize(46, 54);
                     this.hitBox.x = -35;
                     this.hitBox.y = -10;
-                    // this.hitBox.width = 46;
-                    // this.hitBox.height = 54;
-                } else {
+                    speed = 100;
+                    isAttacking = true;
+                } else if (this.isAutoAttacking === 'right') {
                     animToPlay = 'attack-right';
                     this.hitBox.setSize(46, 54);
                     this.hitBox.x = 35;
                     this.hitBox.y = -10;
-                    // this.hitBox.width = 46;
-                    // this.hitBox.height = 54;
+                    speed = 100;
+                    isAttacking = true;
                 }
-                isAttacking = true;
+                if (this.player.anims.currentFrame.textureFrame.includes('auto_') && this.player.anims.currentFrame.isLast) {
+                    isAttacking = false;
+                    this.isAutoAttacking = false;
+                    animToPlay = null;
+                    this.cooldownAuto = this.time.delayedCall(500, () => console.log('auto attack cooldown is up'), undefined, this);
+                }
             } else {
+                
+            }
+
+            //shift button input
+            if (this.shift.isDown) {
+                isAttacking = true;
+                let movingRight = this.d_key.isDown && this.container.body.velocity.x > 0;
+                let movingLeft = this.a_key.isDown && this.container.body.velocity.x < 0;
+                if ((movingRight && !currentAnimKey.includes('left')) || (currentAnimKey.includes('right') && !movingLeft)) {
+                    this.isExtraAttacking = 'right';
+                    this.hitBox.setSize(46, 54);
+                    this.hitBox.x = 35;
+                    this.hitBox.y = -10;
+                } else if ((!movingRight && currentAnimKey.includes('left')) || (!currentAnimKey.includes('right') && movingLeft)) {
+                    this.isExtraAttacking = 'left';
+                    this.hitBox.setSize(46, 54);
+                    this.hitBox.x = -35;
+                    this.hitBox.y = -10;
+                }
+            }
+
+            if (this.isExtraAttacking) {
+                if (this.cooldown1) {
+                    let { delay, elapsed } = this.cooldown1;
+                    if (delay > elapsed) this.isExtraAttacking = false;
+                }
+                
+                if (this.isExtraAttacking === 'left') {
+                    animToPlay = 'attack-extra-left';
+                    speed = 250;
+                    isAttacking = true;
+                } else if (this.isExtraAttacking === 'right') {
+                    animToPlay = 'attack-extra-right';
+                    speed = 250;
+                    isAttacking = true;
+                } else {
+                }
+                if (this.player.anims.currentFrame.textureFrame.includes('attack_extra') && this.player.anims.currentFrame.isLast) {
+                    isAttacking = false;
+                    animToPlay = null;
+                    this.isExtraAttacking = false;
+                    this.cooldown1 = this.time.delayedCall(5000, () => console.log('ability 1 cooldown is up'), undefined, this);
+                }
+            }
+
+            if (!isAttacking) {
                 this.hitBox.setSize(36, 49);
                 this.hitBox.x = 0;
                 this.hitBox.y = 0;
-                // this.hitBox.width = 0;
-                // this.hitBox.height = 0;
             }
 
             if (!isMoving && !isAttacking) {
-                this.player.anims.stop();
-                if (prevVelocity.x < 0 || currentAnimKey === 'attack-left' || currentAnimKey === 'idle-left') {
+                if (prevVelocity.x < 0 || currentAnimKey.includes('left')) {
                     animToPlay = 'idle-left';
                 }
                 else {
@@ -399,11 +586,42 @@ class MainScene extends Phaser.Scene {
                 } else {
                     this.player.setOffset(65, 60);
                 }
+                console.log('anim to play:', animToPlay);
                 this.player.anims.play(animToPlay, true);
             }
             // Normalize and scale the velocity so that player can't move faster along a diagonal
             this.container.body.velocity.normalize().scale(speed);
         }
+        // move enemy healthbars with enemies
+        this.redEnemyBar.x = this.redEnemy.x - 10;
+        this.redEnemyBar.y = this.redEnemy.y - 20;
+        this.blueEnemyBar.x = this.blueEnemy.x - 10;
+        this.blueEnemyBar.y = this.blueEnemy.y - 20;
+        this.checkPlayerStats();
+    }
+    checkPlayerStats = () => {
+        if (this.player) {
+            if (this.playerStats.health <= 0) {
+                this.respawnPlayer();
+            }
+        }
+    }
+    respawnPlayer = () => {
+        this.player.anims.stop();
+        this.player.destroy();
+        this.player = null;
+        this.hitBox.destroy();
+        this.hitBox = null;
+        this.container.destroy();
+        this.container = null;
+        this.playerStats = {
+            health: 100,
+            totalHealth: 100   
+        };
+        this.isExtraAttacking = false;
+        this.isAutoAttacking = false;
+        eventsCenter.emit('damage', this.playerStats);
+        this.addPlayer();
     }
 }
 
