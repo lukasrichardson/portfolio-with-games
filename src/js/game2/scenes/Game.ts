@@ -223,7 +223,7 @@ class MainScene extends Phaser.Scene {
         });
         this.anims.create({
             key: 'attack-right',
-            frameRate: 10,
+            frameRate: 16,
             frames: this.anims.generateFrameNames('knight-walk', {
                 prefix: 'auto_attack',
                 suffix: '.png',
@@ -235,7 +235,7 @@ class MainScene extends Phaser.Scene {
         });
         this.anims.create({
             key: 'attack-left',
-            frameRate: 10,
+            frameRate: 16,
             frames: this.anims.generateFrameNames('knight-walk', {
                 prefix: 'auto_left-attack',
                 suffix: '.png',
