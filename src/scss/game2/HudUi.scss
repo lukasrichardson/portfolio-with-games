@@ -28,9 +28,11 @@
             width: 20px;
             border-radius: 50%;
             text-align: center;
+            cursor: pointer;
         }
         &-name {
             font-size: 24px;
+            width: 150px;
         }
     }
     &__healthbar {

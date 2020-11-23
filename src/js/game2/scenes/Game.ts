@@ -416,7 +416,8 @@ class MainScene extends Phaser.Scene {
                 immune: true
             };
             if (enemyHealthBar) {
-                enemyHealthBar.scaleX = (enemy.healthBar.current) / 100;
+                enemyHealthBar.scaleX = enemy.healthBar.current / 100;
+                if (enemyHealthBar.scaleX < 0) enemyHealthBar.scaleX = 0;
             }
             enemy.setTint(0xFF0000);
             this.time.delayedCall(500, () => {
