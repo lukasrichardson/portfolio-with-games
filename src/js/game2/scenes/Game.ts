@@ -420,7 +420,7 @@ class MainScene extends Phaser.Scene {
                 if (enemyHealthBar.scaleX < 0) enemyHealthBar.scaleX = 0;
             }
             enemy.setTint(0xFF0000);
-            this.time.delayedCall(500, () => {
+            this.time.delayedCall(200, () => {
                 enemy.healthBar = {
                     ...enemy.healthBar,
                     immune: false
