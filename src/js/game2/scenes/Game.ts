@@ -154,10 +154,13 @@ class MainScene extends Phaser.Scene {
             // interact menu logic
             const statsMenu = document.querySelector('.hud-ui__stats');
             if (statsMenu) {
+                //@ts-ignore
                 if (statsMenu.style.display === 'none') {
+                    //@ts-ignore
                     statsMenu.style.display = 'flex';
                     this.displayStatsMenu = true;
                 } else {
+                    //@ts-ignore
                     statsMenu.style.display = 'none';
                     this.displayStatsMenu = false;
                 }
