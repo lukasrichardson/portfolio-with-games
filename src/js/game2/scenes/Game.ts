@@ -131,7 +131,8 @@ class MainScene extends Phaser.Scene {
                     }
                     if (this.playerStats.attackSpeed < 50) this.playerStats.attackSpeed = 50;
                     if (this.playerStats.attackSpeed > 750) this.playerStats.attackSpeed = 750;
-                    value = this.playerStats.attackSpeed;
+                    // value = this.playerStats.attackSpeed / defaultPlayerStats.attackSpeed * 100;
+                    value = (defaultPlayerStats.attackSpeed + (defaultPlayerStats.attackSpeed - this.playerStats.attackSpeed)) / defaultPlayerStats.attackSpeed * 100;
                     break;
                 default:
                     break;
@@ -310,7 +311,8 @@ class MainScene extends Phaser.Scene {
             attackSpeed: defaultPlayerStats.attackSpeed
         }
         Object.keys(this.playerStats).forEach(key => {
-            eventsCenter.emit('updateHudStats', { name: key, value: this.playerStats[key] });
+            if (key === 'attackSpeed')  eventsCenter.emit('updateHudStats', { name: key, value: (defaultPlayerStats[key] + (defaultPlayerStats[key] - this.playerStats[key])) / defaultPlayerStats[key] * 100 });
+            else eventsCenter.emit('updateHudStats', { name: key, value: this.playerStats[key] });
         });
     
         this.hitBox = this.physics.add.sprite(0, 5, 'hitbox').setScale(1, 1).setSize(0, 0).setVisible(false);
