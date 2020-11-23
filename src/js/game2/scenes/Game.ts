@@ -82,7 +82,7 @@ class MainScene extends Phaser.Scene {
         //only apply updates once player container and hitbox exists
         if (this.container && this.hitBox && this.player) {
             const { key: currentAnimKey } = this.player.anims.currentAnim;
-            let speed = this.playerStats.speed; //default speed
+            let speed = this.playerStats.speed.current; //default speed
             const prevVelocity = this.container.body.velocity.clone();
             this.container.body.setVelocity(0);
             let isMoving = false;
@@ -155,7 +155,7 @@ class MainScene extends Phaser.Scene {
                     isAttacking = false;
                     this.isAutoAttacking = false;
                     animToPlay = null;
-                    this.cooldownAuto = this.time.delayedCall(this.playerStats.attackSpeed, () => console.log('auto attack cooldown is up'), undefined, this);
+                    this.cooldownAuto = this.time.delayedCall(this.playerStats.attackSpeed.current, () => console.log('auto attack cooldown is up'), undefined, this);
                 }
             } else {
                 

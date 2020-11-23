@@ -16,11 +16,10 @@ class HUDScene extends Phaser.Scene {
     }
 
     create() {
-        
-        eventsCenter.on('damage', stats => {
-            const { health, totalHealth } = stats;
-                this.currentHealth = health;
-                this.totalHealth = totalHealth;
+        eventsCenter.on('updateHealthBar', stats => {
+            const { health } = stats;
+                this.currentHealth = health.current;
+                this.totalHealth = health.max;
                 if (this.currentHealth < 0) this.currentHealth = 0;
                 this.setBarValue();
         });

@@ -2,12 +2,22 @@ import gameConstants from '../../constants/game2.constants';
 import eventsCenter from '../../EventsCenter';
 const { defaultPlayerStats } = gameConstants;
 
+const updateHudStats = (name: any, value: any, total: any, _this: any) => {
+    eventsCenter.emit('updateHudStats', {
+        name,
+        value,
+        total
+    });
+    if (name === 'health')
+    eventsCenter.emit('updateHealthBar', _this.playerStats);
+}
+
 const collideWithEnemy = (_this: any) => (container: any, enemy: any) => {
     const { name } = enemy.healthBar;
     if (!_this.hitBy[name]) {
         _this.hitBy[name] = name;
-        _this.playerStats.health -= 10;
-        eventsCenter.emit('damage', _this.playerStats);
+        _this.playerStats.health.current -= 10;
+        // eventsCenter.emit('damage', _this.playerStats);
         _this.player.setTint(0xFF0000);
         _this.time.delayedCall(500, () => {
             delete _this.hitBy[name];
@@ -97,6 +107,10 @@ const moveEnemies = (_this: any) => {
         _this.spawns.setVelocityX(0);
         _this.spawns.setVelocityY(0);
         }, 500);
+}
+const calcAttackSpeedPercent = (value: any) => {
+    console.log(defaultPlayerStats.attackSpeed.current, value)
+    return Math.round((defaultPlayerStats.attackSpeed.current + (defaultPlayerStats.attackSpeed.current - value)) / defaultPlayerStats.attackSpeed.current * 100);
 }
 
 export const addControls = (_this: any) => {
@@ -262,15 +276,11 @@ export const addPlayer = (_this: any) => {
     _this.hitBy = {};
     // put player sprite inside a container that will control collisions and movement
     _this.player = _this.physics.add.sprite(0, 5, 'knight-walk', 'walk1.png').setScale(1, 1).setSize(36, 49).setOffset(65, 60);
-    _this.playerStats = {
-        health: 100,
-        totalHealth: 100,
-        speed: defaultPlayerStats.speed,
-        attackSpeed: defaultPlayerStats.attackSpeed
-    }
+    _this.playerStats = { ...defaultPlayerStats };
     Object.keys(_this.playerStats).forEach(key => {
-        if (key === 'attackSpeed')  eventsCenter.emit('updateHudStats', { name: key, value: (defaultPlayerStats[key] + (defaultPlayerStats[key] - _this.playerStats[key])) / defaultPlayerStats[key] * 100 });
-        else eventsCenter.emit('updateHudStats', { name: key, value: _this.playerStats[key] });
+        if (key === 'cooldown1') return;
+        if (key === 'attackSpeed')  updateHudStats(key, 100, _this.playerStats[key].min, _this);
+        else updateHudStats(key, _this.playerStats[key].current, _this.playerStats[key].max, _this);
     });
 
     _this.hitBox = _this.physics.add.sprite(0, 5, 'hitbox').setScale(1, 1).setSize(0, 0).setVisible(false);
@@ -290,7 +300,7 @@ export const addPlayer = (_this: any) => {
     if (_this.spawns) {
         addEnemyInteractions(_this);
     }
-    eventsCenter.emit('damage', _this.playerStats);
+    eventsCenter.emit('updateHealthBar', _this.playerStats);
 }
 
 export const spawnEnemies = (_this: any) => {
@@ -345,72 +355,98 @@ export const addChangeStatsListener = (_this: any) => {
     eventsCenter.on('changeStats', (stats: any) => {
         const { name, operation } = stats;
         let value = null;
+        let total = null;
         switch (name) {
             case 'health':
                 switch (operation) {
                     case 'add':
                         _this.playerStats = {
                             ..._this.playerStats,
-                            health: _this.playerStats.health + 10,
-                            totalHealth: _this.playerStats.totalHealth + 10
+                            health: {
+                                ..._this.playerStats.health,
+                                current: _this.playerStats.health.current + 10,
+                                max: _this.playerStats.health.max + 10
+                            }
                         }
                         break;
                     case 'subtract':
                         _this.playerStats = {
                             ..._this.playerStats,
-                            health: _this.playerStats.health - 10,
-                            totalHealth: _this.playerStats.totalHealth - 10
+                            health: {
+                                ..._this.playerStats.health,
+                                current: _this.playerStats.health.current - 10,
+                                max: _this.playerStats.health.max - 10
+                            }
                         }
                         break;
                     default:
                         break;
                 }
-                value = _this.playerStats.totalHealth;
-                eventsCenter.emit('damage', _this.playerStats);
+                if (_this.playerStats.health.current > _this.playerStats.health.max) _this.playerStats.health.current = _this.playerStats.health.max;
+                if (_this.playerStats.health.current < _this.playerStats.health.min) _this.playerStats.health.current = _this.playerStats.health.min;
+                value = _this.playerStats.health.current;
+                total = _this.playerStats.health.max;
+                eventsCenter.emit('updateHealthBar', _this.playerStats);
                 break;
             case 'speed':
                 switch (operation) {
                     case 'add':
                         _this.playerStats = {
                             ..._this.playerStats,
-                            speed: _this.playerStats.speed + 10
+                            speed: {
+                                ..._this.playerStats.speed,
+                                current: _this.playerStats.speed.current + 10
+                            }
                         }
                         break;
                     case 'subtract':
                         _this.playerStats = {
                             ..._this.playerStats,
-                            speed: _this.playerStats.speed - 10
+                            speed: {
+                                ..._this.playerStats.speed,
+                                current:  _this.playerStats.speed.current - 10
+                            }
                         }
                         break;
                     default:
                         break;
                 }
-                value = _this.playerStats.speed;
+                if (_this.playerStats.speed.current > _this.playerStats.speed.max) _this.playerStats.speed.current = _this.playerStats.speed.max;
+                if (_this.playerStats.speed.current < _this.playerStats.speed.min) _this.playerStats.speed.current = _this.playerStats.speed.min;
+                value = _this.playerStats.speed.current;
+                total = _this.playerStats.speed.max;
                 break;
             case 'attackSpeed':
                 switch (operation) {
                     case 'add':
                         _this.playerStats = {
                             ..._this.playerStats,
-                            attackSpeed: _this.playerStats.attackSpeed - 50
+                            attackSpeed: {
+                                ..._this.playerStats.attackSpeed,
+                                current: _this.playerStats.attackSpeed.current - 50
+                            }
                         }
                         break;
                     case 'subtract':
                         _this.playerStats = {
                             ..._this.playerStats,
-                            attackSpeed: _this.playerStats.attackSpeed + 50
+                            attackSpeed: {
+                                ..._this.playerStats.attackSpeed,
+                                current: _this.playerStats.attackSpeed.current + 50
+                            }
                         }
                         break;
                     default:
                         break;
                 }
-                if (_this.playerStats.attackSpeed < 50) _this.playerStats.attackSpeed = 50;
-                if (_this.playerStats.attackSpeed > 750) _this.playerStats.attackSpeed = 750;
-                value = (defaultPlayerStats.attackSpeed + (defaultPlayerStats.attackSpeed - _this.playerStats.attackSpeed)) / defaultPlayerStats.attackSpeed * 100;
+                if (_this.playerStats.attackSpeed.current > _this.playerStats.attackSpeed.min) _this.playerStats.attackSpeed.current = _this.playerStats.attackSpeed.min;
+                if (_this.playerStats.attackSpeed.current < _this.playerStats.attackSpeed.max) _this.playerStats.attackSpeed.current = _this.playerStats.attackSpeed.max;
+                value = calcAttackSpeedPercent(_this.playerStats.attackSpeed.current);
+                total = calcAttackSpeedPercent(_this.playerStats.attackSpeed.max);
                 break;
             default:
                 break;
         }
-        eventsCenter.emit('updateHudStats', { name, value });
+        updateHudStats(name, value, total, _this);
     });
 }

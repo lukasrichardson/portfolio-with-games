@@ -21,23 +21,35 @@ class HudUi extends Component {
         super(props);
         this.state = {
             stats: {
-                health: null,
-                speed: null,
-                attackSpeed: null
+                health: {
+                    current: null,
+                    total: null
+                },
+                speed: {
+                    current: null,
+                    total: null
+                },
+                attackSpeed: {
+                    current: null,
+                    total: null
+                }
             }
         }
     }
     componentDidMount = () => {
-        eventsCenter.on('updateHudStats', ({ name, value }) => {
-            console.log('updateHudStats', name, value);
-            this.setStatValue(name, value);
+        eventsCenter.on('updateHudStats', ({ name, value, total }) => {
+            console.log('updateHudStats', name, value, total);
+            this.setStatValue(name, value, total);
         });
     }
-    setStatValue = (name, value) => {
+    setStatValue = (name, value, total) => {
         this.setState({
             stats: {
                 ...this.state.stats,
-                [name]: value
+                [name]: {
+                    current: value,
+                    total: total
+                }
             }
         });
     }
@@ -70,7 +82,10 @@ class HudUi extends Component {
                                 }
                                 )}>+</span>
                             <span className='hud-ui__stats-value'>
-                                {this.state.stats[item.name]}
+                                {this.state.stats[item.name].current}
+                            </span>
+                            <span className='hud-ui__stats-total'>
+                                / {this.state.stats[item.name].total}
                             </span>
                         </div>
                     ))}

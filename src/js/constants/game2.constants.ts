@@ -15,10 +15,21 @@ export default {
     },
     defaultSpeed: 175,
     defaultPlayerStats : {
-        health: 100,
-        totalHealth: 100,
-        speed: 175,
-        attackSpeed: 500,
+        health: {
+            current: 100,
+            min: 0,
+            max: 100
+        },
+        speed: {
+            current: 175,
+            min: 50,
+            max: 1000
+        },                
+        attackSpeed: {
+            current: 500,
+            min: 1000,
+            max: 50
+        },
         cooldown1: 5000
     }
 }
