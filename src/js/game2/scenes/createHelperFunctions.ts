@@ -2,6 +2,103 @@ import gameConstants from '../../constants/game2.constants';
 import eventsCenter from '../../EventsCenter';
 const { defaultPlayerStats } = gameConstants;
 
+const collideWithEnemy = (_this: any) => (container: any, enemy: any) => {
+    const { name } = enemy.healthBar;
+    if (!_this.hitBy[name]) {
+        _this.hitBy[name] = name;
+        _this.playerStats.health -= 10;
+        eventsCenter.emit('damage', _this.playerStats);
+        _this.player.setTint(0xFF0000);
+        _this.time.delayedCall(500, () => {
+            delete _this.hitBy[name];
+            _this.player.clearTint();
+        }, undefined, _this);
+    } else {
+    }
+}
+const hitEnemy = (_this: any) => (hitBox: any, enemy: any) => {
+    const { parentContainer } = hitBox;
+    const { currentFrame } = parentContainer.list[0].anims;
+    const { name: frameName } = currentFrame.frame;
+    const { name } = enemy.healthBar;
+    //@ts-ignore
+    let enemyHealthBar = _this[name];
+    
+    let damage = 0;
+    if (frameName.includes('attack2') || frameName.includes('attack3') || frameName.includes('attack4')) {//auto attack
+        damage += 10;
+    } else if (frameName.includes('attack_extra5') || frameName.includes('attack_extra6') || frameName.includes('attack_extra7')) {//extra attack
+        damage += 25;
+    }
+    if (damage > 0 && !enemy.healthBar.immune) {
+        enemy.healthBar = {
+            ...enemy.healthBar,
+            current: enemy.healthBar.current - damage,
+            immune: true
+        };
+        if (enemyHealthBar) {
+            enemyHealthBar.scaleX = enemy.healthBar.current / 100;
+            if (enemyHealthBar.scaleX < 0) enemyHealthBar.scaleX = 0;
+        }
+        enemy.setTint(0xFF0000);
+        _this.time.delayedCall(200, () => {
+            enemy.healthBar = {
+                ...enemy.healthBar,
+                immune: false
+            };
+            enemy.clearTint();
+        }, undefined, _this);
+    }
+    if (enemy.healthBar.current <= 0) {
+        enemy.destroy();
+        if (!_this.redEnemy.active && !_this.blueEnemy.active) {
+            spawnEnemies(_this);
+        }
+    }
+}
+const addEnemyInteractions = (_this: any) => {
+    // add attack logic for player hitting enemy
+    _this.physics.add.overlap(_this.spawns, _this.hitBox, hitEnemy(_this));
+
+    // collision logic with enemy and player container
+    _this.physics.add.collider(_this.spawns, _this.container, collideWithEnemy(_this));
+}
+const playerWorldCollisionHandler = (_this: any) => (player: any, world: any) => {
+    if (world.properties.text) {
+        if (!_this.interact.text !== world.properties.text)
+        _this.interact = {
+            text: world.properties.text
+        };
+    }
+}
+const moveEnemies = (_this: any) => {
+    _this.spawns.getChildren().forEach((enemy: any) => {
+        const randomNumber = Math.floor((Math.random() * 4) + 1);
+
+        switch(randomNumber) {
+            case 1:
+                enemy.body.setVelocityX(50);
+                break;
+            case 2:
+                enemy.body.setVelocityX(-50);
+                break;
+            case 3:
+                enemy.body.setVelocityY(50);
+                break;
+            case 4:
+                enemy.body.setVelocityY(-50);
+                break;
+            default:
+                enemy.body.setVelocityX(50);
+            }
+    });
+
+    setTimeout(() => {
+        _this.spawns.setVelocityX(0);
+        _this.spawns.setVelocityY(0);
+        }, 500);
+}
+
 export const addControls = (_this: any) => {
     /*ADD CONTROLS*/
     _this.input.mouse.capture = true;
@@ -156,100 +253,6 @@ export const addPlayerAnims = (_this: any) => {
     });
 }
 
-const collideWithEnemy = (_this: any) => (container: any, enemy: any) => {
-    const { name } = enemy.healthBar;
-    if (!_this.hitBy[name]) {
-        _this.hitBy[name] = name;
-        _this.playerStats.health -= 10;
-        eventsCenter.emit('damage', _this.playerStats);
-        _this.player.setTint(0xFF0000);
-        _this.time.delayedCall(500, () => {
-            delete _this.hitBy[name];
-            _this.player.clearTint();
-        }, undefined, _this);
-    } else {
-    }
-}
-const hitEnemy = (_this: any) => (hitBox: any, enemy: any) => {
-    const { parentContainer } = hitBox;
-    const { currentFrame } = parentContainer.list[0].anims;
-    const { name: frameName } = currentFrame.frame;
-    const { name } = enemy.healthBar;
-    //@ts-ignore
-    let enemyHealthBar = _this[name];
-    
-    let damage = 0;
-    if (frameName.includes('attack2') || frameName.includes('attack3') || frameName.includes('attack4')) {//auto attack
-        damage += 10;
-    } else if (frameName.includes('attack_extra5') || frameName.includes('attack_extra6') || frameName.includes('attack_extra7')) {//extra attack
-        damage += 25;
-    }
-    if (damage > 0 && !enemy.healthBar.immune) {
-        enemy.healthBar = {
-            ...enemy.healthBar,
-            current: enemy.healthBar.current - damage,
-            immune: true
-        };
-        if (enemyHealthBar) {
-            enemyHealthBar.scaleX = enemy.healthBar.current / 100;
-            if (enemyHealthBar.scaleX < 0) enemyHealthBar.scaleX = 0;
-        }
-        enemy.setTint(0xFF0000);
-        _this.time.delayedCall(200, () => {
-            enemy.healthBar = {
-                ...enemy.healthBar,
-                immune: false
-            };
-            enemy.clearTint();
-        }, undefined, _this);
-    }
-    if (enemy.healthBar.current <= 0) {
-        enemy.destroy();
-    }
-}
-const addEnemyInteractions = (_this: any) => {
-    // add attack logic for player hitting enemy
-    _this.physics.add.overlap(_this.spawns, _this.hitBox, hitEnemy(_this));
-
-    // collision logic with enemy and player container
-    _this.physics.add.collider(_this.spawns, _this.container, collideWithEnemy(_this));
-}
-const playerWorldCollisionHandler = (_this: any) => (player: any, world: any) => {
-    if (world.properties.text) {
-        if (!_this.interact.text !== world.properties.text)
-        _this.interact = {
-            text: world.properties.text
-        };
-    }
-}
-const moveEnemies = (_this: any) => {
-    _this.spawns.getChildren().forEach((enemy: any) => {
-        const randomNumber = Math.floor((Math.random() * 4) + 1);
-
-        switch(randomNumber) {
-            case 1:
-                enemy.body.setVelocityX(50);
-                break;
-            case 2:
-                enemy.body.setVelocityX(-50);
-                break;
-            case 3:
-                enemy.body.setVelocityY(50);
-                break;
-            case 4:
-                enemy.body.setVelocityY(-50);
-                break;
-            default:
-                enemy.body.setVelocityX(50);
-            }
-    });
-
-    setTimeout(() => {
-        _this.spawns.setVelocityX(0);
-        _this.spawns.setVelocityY(0);
-        }, 500);
-}
-
 export const addPlayer = (_this: any) => {
     //create container for player sprites / hitboxes
     _this.container = _this.add.container(_this.spawnPoint.x, _this.spawnPoint.y);
@@ -310,10 +313,6 @@ export const spawnEnemies = (_this: any) => {
     _this.redEnemyBar.x = _this.redSpawn.x;
     _this.redEnemyBar.y = _this.redSpawn.y;
     _this.redEnemyBar.setDepth(50);
-
-    // _this.redEnemyContainer = _this.add.container(_this.redSpawn.x, _this.redSpawn.y);
-    // _this.redEnemyContainer.setSize(36, 49);
-    // _this.redEnemyContainer.add(_this.redEnemyBar);
 
     _this.blueEnemy = _this.spawns.create(_this.blueSpawn.x, _this.blueSpawn.y, 'redEnemy');
     _this.blueEnemy.healthBar = {
