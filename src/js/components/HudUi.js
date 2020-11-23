@@ -46,6 +46,12 @@ class HudUi extends Component {
         return (
             <div className="hud-ui">
                 <div className='hud-ui__stats' style={{ display: 'none' }}>
+                    <div className='hud-ui__stats-header'>
+                        <span className='stats-title__name'>Name</span>
+                        <span className='stats-title'>Subtract</span>
+                        <span className='stats-title'>Add</span>
+                        <span className='stats-title'>Value</span>
+                    </div>
                     {stats.map(item => (
                         <div className='hud-ui__stats-item' key={item.name}>
                             <span className='hud-ui__stats-name'>{item.title}</span>
