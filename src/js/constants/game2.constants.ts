@@ -13,5 +13,12 @@ export default {
     ANIMATIONS: {
 
     },
-    defaultSpeed: 175
+    defaultSpeed: 175,
+    defaultPlayerStats : {
+        health: 100,
+        totalHealth: 100,
+        speed: 175,
+        attackSpeed: 500,
+        cooldown1: 5000
+    }
 }

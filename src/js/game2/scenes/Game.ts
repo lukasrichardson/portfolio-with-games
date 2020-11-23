@@ -4,7 +4,7 @@ import gameConstants from '../../constants/game2.constants';
 //@ts-ignore
 import eventsCenter from '../../EventsCenter.js';
 
-const { SCENES, defaultSpeed } = gameConstants;
+const { SCENES, defaultSpeed, defaultPlayerStats } = gameConstants;
 
 class MainScene extends Phaser.Scene {
     cursors: Phaser.Types.Input.Keyboard.CursorKeys | any;
@@ -38,7 +38,9 @@ class MainScene extends Phaser.Scene {
     playerStats: {
         health: number;
         totalHealth: number;
+        attackSpeed: number;
     } | any;
+    displayStatsMenu: boolean;
     constructor() {
         super({
             key: SCENES.GAME
@@ -46,6 +48,7 @@ class MainScene extends Phaser.Scene {
         this.interact = {
             text: 'yooooo'
         };
+        this.displayStatsMenu = false;
     }
 
     init(data: any) {
@@ -63,6 +66,78 @@ class MainScene extends Phaser.Scene {
         this.addPlayer();
         this.spawnEnemies();
         this.addDebugGraphics();
+        eventsCenter.on('changeStats', (stats: any) => {
+            const { name, operation } = stats;
+            console.log('changeStats:', stats);
+            let value = null;
+            switch (name) {
+                case 'health':
+                    switch (operation) {
+                        case 'add':
+                            this.playerStats = {
+                                ...this.playerStats,
+                                health: this.playerStats.health + 10,
+                                totalHealth: this.playerStats.totalHealth + 10
+                            }
+                            break;
+                        case 'subtract':
+                            this.playerStats = {
+                                ...this.playerStats,
+                                health: this.playerStats.health - 10,
+                                totalHealth: this.playerStats.totalHealth - 10
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    value = this.playerStats.totalHealth;
+                    eventsCenter.emit('damage', this.playerStats);
+                    break;
+                case 'speed':
+                    switch (operation) {
+                        case 'add':
+                            this.playerStats = {
+                                ...this.playerStats,
+                                speed: this.playerStats.speed + 10
+                            }
+                            break;
+                        case 'subtract':
+                            this.playerStats = {
+                                ...this.playerStats,
+                                speed: this.playerStats.speed - 10
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    value = this.playerStats.speed;
+                    break;
+                case 'attackSpeed':
+                    switch (operation) {
+                        case 'add':
+                            this.playerStats = {
+                                ...this.playerStats,
+                                attackSpeed: this.playerStats.attackSpeed - 50
+                            }
+                            break;
+                        case 'subtract':
+                            this.playerStats = {
+                                ...this.playerStats,
+                                attackSpeed: this.playerStats.attackSpeed + 50
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    if (this.playerStats.attackSpeed < 50) this.playerStats.attackSpeed = 50;
+                    if (this.playerStats.attackSpeed > 750) this.playerStats.attackSpeed = 750;
+                    value = this.playerStats.attackSpeed;
+                    break;
+                default:
+                    break;
+            }
+            eventsCenter.emit('updateHudStats', { name, value });
+        });
     }
 
     /* CREATE METHOD HELPER FUNCTIONS */
@@ -77,31 +152,14 @@ class MainScene extends Phaser.Scene {
         this.e_key = this.input.keyboard.addKey('E');
         this.e_key.on('down', () => {
             // interact menu logic
-            const menuElement = document.querySelector('.text-menu');
-            if (menuElement){
-                if (this.interact.text) {
-                    const menuText = menuElement.querySelector('span');
-                    //@ts-ignore
-                    if (menuElement.style.display === 'none') {
-                        //@ts-ignore
-                        menuElement.style.display = 'block';
-                        if (menuText) {
-                            menuText.innerText = this.interact.text;
-                        }
-                    } else {
-                        if (menuText) {
-                            if (menuText.innerText === this.interact.text) {
-                                //@ts-ignore
-                                menuElement.style.display = 'none';
-                            } else {
-                                menuText.innerText = this.interact.text;
-                            }
-                        }
-                    }
-                    //@ts-ignore
-                } else if (menuElement.style.display === 'block') {
-                    //@ts-ignore
-                    menuElement.style.display = 'none';
+            const statsMenu = document.querySelector('.hud-ui__stats');
+            if (statsMenu) {
+                if (statsMenu.style.display === 'none') {
+                    statsMenu.style.display = 'flex';
+                    this.displayStatsMenu = true;
+                } else {
+                    statsMenu.style.display = 'none';
+                    this.displayStatsMenu = false;
                 }
             }
         });
@@ -244,8 +302,13 @@ class MainScene extends Phaser.Scene {
         this.player = this.physics.add.sprite(0, 5, 'knight-walk', 'walk1.png').setScale(1, 1).setSize(36, 49).setOffset(65, 60);
         this.playerStats = {
             health: 100,
-            totalHealth: 100
+            totalHealth: 100,
+            speed: defaultPlayerStats.speed,
+            attackSpeed: defaultPlayerStats.attackSpeed
         }
+        Object.keys(this.playerStats).forEach(key => {
+            eventsCenter.emit('updateHudStats', { name: key, value: this.playerStats[key] });
+        });
     
         this.hitBox = this.physics.add.sprite(0, 5, 'hitbox').setScale(1, 1).setSize(0, 0).setVisible(false);
         this.container.add([this.player, this.hitBox]);
@@ -264,6 +327,7 @@ class MainScene extends Phaser.Scene {
         if (this.spawns) {
             this.addEnemyInteractions();
         }
+        eventsCenter.emit('damage', this.playerStats);
     }
 
     spawnEnemies = () => {
@@ -445,7 +509,7 @@ class MainScene extends Phaser.Scene {
         //only apply updates once player container and hitbox exists
         if (this.container && this.hitBox && this.player) {
             const { key: currentAnimKey } = this.player.anims.currentAnim;
-            let speed = defaultSpeed; //default speed
+            let speed = this.playerStats.speed; //default speed
             const prevVelocity = this.container.body.velocity.clone();
             this.container.body.setVelocity(0);
             let isMoving = false;
@@ -480,8 +544,8 @@ class MainScene extends Phaser.Scene {
                 } else animToPlay = 'left';
             }
 
-            // check if left mouse button i clicked
-            if (!this.isExtraAttacking && this.input.activePointer.isDown) {
+            // check if left mouse button is clicked
+            if (!this.isExtraAttacking && this.input.activePointer.isDown && !this.displayStatsMenu) {
                 if (this.container.x > this.input.activePointer.worldX) {
                     if (this.isAutoAttacking !== 'right') this.isAutoAttacking = 'left';
                 } else {
@@ -504,21 +568,21 @@ class MainScene extends Phaser.Scene {
                     this.hitBox.setSize(46, 54);
                     this.hitBox.x = -35;
                     this.hitBox.y = -10;
-                    speed = 100;
+                    speed *= 0.7;
                     isAttacking = true;
                 } else if (this.isAutoAttacking === 'right') {
                     animToPlay = 'attack-right';
                     this.hitBox.setSize(46, 54);
                     this.hitBox.x = 35;
                     this.hitBox.y = -10;
-                    speed = 100;
+                    speed *=0.7;
                     isAttacking = true;
                 }
                 if (this.player.anims.currentFrame.textureFrame.includes('auto_') && this.player.anims.currentFrame.isLast) {
                     isAttacking = false;
                     this.isAutoAttacking = false;
                     animToPlay = null;
-                    this.cooldownAuto = this.time.delayedCall(500, () => console.log('auto attack cooldown is up'), undefined, this);
+                    this.cooldownAuto = this.time.delayedCall(this.playerStats.attackSpeed, () => console.log('auto attack cooldown is up'), undefined, this);
                 }
             } else {
                 
@@ -550,11 +614,11 @@ class MainScene extends Phaser.Scene {
                 
                 if (this.isExtraAttacking === 'left') {
                     animToPlay = 'attack-extra-left';
-                    speed = 250;
+                    speed *= 1.5;
                     isAttacking = true;
                 } else if (this.isExtraAttacking === 'right') {
                     animToPlay = 'attack-extra-right';
-                    speed = 250;
+                    speed *= 1.5;
                     isAttacking = true;
                 } else {
                 }
@@ -562,7 +626,7 @@ class MainScene extends Phaser.Scene {
                     isAttacking = false;
                     animToPlay = null;
                     this.isExtraAttacking = false;
-                    this.cooldown1 = this.time.delayedCall(5000, () => console.log('ability 1 cooldown is up'), undefined, this);
+                    this.cooldown1 = this.time.delayedCall(defaultPlayerStats.cooldown1, () => console.log('ability 1 cooldown is up'), undefined, this);
                 }
             }
 
@@ -586,7 +650,6 @@ class MainScene extends Phaser.Scene {
                 } else {
                     this.player.setOffset(65, 60);
                 }
-                console.log('anim to play:', animToPlay);
                 this.player.anims.play(animToPlay, true);
             }
             // Normalize and scale the velocity so that player can't move faster along a diagonal
@@ -614,13 +677,8 @@ class MainScene extends Phaser.Scene {
         this.hitBox = null;
         this.container.destroy();
         this.container = null;
-        this.playerStats = {
-            health: 100,
-            totalHealth: 100   
-        };
         this.isExtraAttacking = false;
         this.isAutoAttacking = false;
-        eventsCenter.emit('damage', this.playerStats);
         this.addPlayer();
     }
 }

@@ -1,10 +1,76 @@
 import React, { Component } from 'react';
-class HudUi extends Component{
-    render(){
-        return(
+import eventsCenter from '../EventsCenter';
+
+const stats = [
+    {
+        title: 'Health',
+        name: 'health'
+    },
+    {
+        title: 'Speed',
+        name: 'speed'
+    },
+    {
+        title: 'Attack Speed',
+        name: 'attackSpeed'
+    }
+]
+
+class HudUi extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            stats: {
+                health: null,
+                speed: null,
+                attackSpeed: null
+            }
+        }
+    }
+    componentDidMount = () => {
+        eventsCenter.on('updateHudStats', ({ name, value }) => {
+            console.log('updateHudStats', name, value);
+            this.setStatValue(name, value);
+        });
+    }
+    setStatValue = (name, value) => {
+        this.setState({
+            stats: {
+                ...this.state.stats,
+                [name]: value
+            }
+        });
+    }
+
+    render() {
+        return (
             <div className="hud-ui">
+                <div className='hud-ui__stats' style={{ display: 'none' }}>
+                    {stats.map(item => (
+                        <div className='hud-ui__stats-item' key={item.name}>
+                            <span className='hud-ui__stats-name'>{item.title}</span>
+                            <span
+                                className='hud-ui__stats-subtract'
+                                onClick={() => eventsCenter.emit('changeStats', {
+                                    name: item.name,
+                                    operation: 'subtract'
+                                }
+                                )}>-</span>
+                            <span
+                                className='hud-ui__stats-add'
+                                onClick={() => eventsCenter.emit('changeStats', {
+                                    name: item.name,
+                                    operation: 'add'
+                                }
+                                )}>+</span>
+                            <span className='hud-ui__stats-value'>
+                                {this.state.stats[item.name]}
+                            </span>
+                        </div>
+                    ))}
+                </div>
                 <div className='hud-ui__healthbar'>
-                    <div className='hud-ui__healthbar--inner'/>
+                    <div className='hud-ui__healthbar--inner' />
                     <div className='hud-ui__healthbar-text'>
                         <span className='hud-ui__healthbar-text--current'>0</span>
                         <span> / </span>
