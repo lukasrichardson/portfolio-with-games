@@ -27,7 +27,7 @@ class Play2 extends Component {
                 <ul className='temp-instructions'>
                     <li>use "WASD" to walk</li>
                     <li>use "LeftMouse" to attack</li>
-                    <li>use "SHIFT" to do a big Attack</li>
+                    <li>use "SHIFT" to do a Jump Attack</li>
                     <li>use "I" to open and close the edit stats menu</li>
                     <li>hitting an enemy with an attack to lower enemy healthbars</li>
                     <li>getting hit by an enemy will cause you to lose health</li>

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import eventsCenter from '../EventsCenter';
+import cx from 'classnames';
 
 const stats = [
     {
@@ -13,6 +14,13 @@ const stats = [
     {
         title: 'Attack Speed',
         name: 'attackSpeed'
+    }
+]
+
+const cooldowns = [
+    {
+        name: 'cooldown1',
+        title: 'Jump Attack'
     }
 ]
 
@@ -33,14 +41,20 @@ class HudUi extends Component {
                     current: null,
                     total: null
                 }
+            },
+            cooldowns: {
+                cooldown1: null
             }
         }
     }
     componentDidMount = () => {
         eventsCenter.on('updateHudStats', ({ name, value, total }) => {
-            console.log('updateHudStats', name, value, total);
             this.setStatValue(name, value, total);
         });
+        eventsCenter.on('updateHudCooldown', ({ name, value }) => {
+            console.log('updatehudcooldown', name, value);
+            this.setCooldownValue(name, value);
+        })
     }
     setStatValue = (name, value, total) => {
         this.setState({
@@ -52,6 +66,19 @@ class HudUi extends Component {
                 }
             }
         });
+    }
+    setCooldownValue = (name, value) => {
+        this.setState({
+            cooldowns: {
+                ...this.state.cooldowns,
+                [name]: value
+            }
+        });
+    }
+    createCooldownNumber = ({ name, title }) => {
+        let number = this.state.cooldowns[name];
+        if (number !== 0) return number / 1000;
+        return title;
     }
 
     render() {
@@ -90,12 +117,27 @@ class HudUi extends Component {
                         </div>
                     ))}
                 </div>
-                <div className='hud-ui__healthbar'>
-                    <div className='hud-ui__healthbar--inner' />
-                    <div className='hud-ui__healthbar-text'>
-                        <span className='hud-ui__healthbar-text--current'>0</span>
-                        <span> / </span>
-                        <span className='hud-ui__healthbar-text--total'>0</span>
+                <div className='hud-ui__fixed'>
+                    <div className='hud-ui__cooldowns'>
+                        {cooldowns.map( item => (
+                            <div className='hud-cooldown'>
+                                <div className='hud-cooldown__square'>
+                                    <div className={cx('hud-cooldown__overlay', {
+                                        'hud-cooldown__overlay--active': this.state.cooldowns[item.name] === 0,
+                                        'hud-cooldown__overlay--disabled': this.state.cooldowns[item.name] !== 0
+                                    })}/>
+                                    <span className='hud-cooldown__number'>{this.createCooldownNumber(item)}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <div className='hud-ui__healthbar'>
+                        <div className='hud-ui__healthbar--inner' />
+                        <div className='hud-ui__healthbar-text'>
+                            <span className='hud-ui__healthbar-text--current'>0</span>
+                            <span> / </span>
+                            <span className='hud-ui__healthbar-text--total'>0</span>
+                        </div>
                     </div>
                 </div>
             </div>

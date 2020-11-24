@@ -3,7 +3,7 @@ import gameConstants from '../../constants/game2.constants';
 //@ts-ignore
 import eventsCenter from '../../EventsCenter.js';
 import updateHelperFunctions from './updateHelperFunctions';
-import { addControls, createMapLayers, addPlayer, addPlayerAnims, spawnEnemies, addChangeStatsListener } from './createHelperFunctions';
+import { addControls, createMapLayers, addPlayer, addPlayerAnims, spawnEnemies, addChangeStatsListener, updateHudCooldown } from './createHelperFunctions';
 const { checkPlayerStats } = updateHelperFunctions;
 
 const { SCENES, defaultPlayerStats } = gameConstants;
@@ -180,9 +180,12 @@ class MainScene extends Phaser.Scene {
             }
 
             if (this.isExtraAttacking) {
-                if (this.cooldown1) {
-                    let { delay, elapsed } = this.cooldown1;
-                    if (delay > elapsed) this.isExtraAttacking = false;
+                if (this.playerStats.cooldown1.current) {
+                    // let { delay, elapsed } = this.cooldown1;
+                    // if (delay > elapsed) this.isExtraAttacking = false;
+                    if (this.playerStats.cooldown1.current !== 0) {
+                        this.isExtraAttacking = false;
+                    }
                 }
                 
                 if (this.isExtraAttacking === 'left') {
@@ -199,7 +202,18 @@ class MainScene extends Phaser.Scene {
                     isAttacking = false;
                     animToPlay = null;
                     this.isExtraAttacking = false;
-                    this.cooldown1 = this.time.delayedCall(defaultPlayerStats.cooldown1, () => console.log('ability 1 cooldown is up'), undefined, this);
+                    // this.cooldown1 = this.time.delayedCall(defaultPlayerStats.cooldown1, () => console.log('ability 1 cooldown is up'), undefined, this);
+                    this.playerStats.cooldown1.current = this.playerStats.cooldown1.max;
+                    updateHudCooldown('cooldown1', this.playerStats.cooldown1.current);
+                    this.time.addEvent({
+                        delay: 1000,
+                        repeat: (this.playerStats.cooldown1.max / 1000) - 1,
+                        callback: () => {
+                            if (this.playerStats.cooldown1.current !== 0) this.playerStats.cooldown1.current -= 1000;
+                            console.log('callback', this.playerStats.cooldown1);
+                            updateHudCooldown('cooldown1', this.playerStats.cooldown1.current);
+                        }
+                    });
                 }
             }
 

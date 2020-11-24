@@ -30,6 +30,10 @@ export default {
             min: 1000,
             max: 50
         },
-        cooldown1: 5000
+        cooldown1: {
+            current: 0,
+            min: 0,
+            max: 5000
+        }
     }
 }

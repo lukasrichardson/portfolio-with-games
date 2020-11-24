@@ -12,6 +12,13 @@ const updateHudStats = (name: any, value: any, total: any, _this: any) => {
     eventsCenter.emit('updateHealthBar', _this.playerStats);
 }
 
+export const updateHudCooldown = (name: any, value: any) => {
+    eventsCenter.emit('updateHudCooldown', {
+        name,
+        value
+    });
+}
+
 const collideWithEnemy = (_this: any) => (container: any, enemy: any) => {
     const { name } = enemy.healthBar;
     if (!_this.hitBy[name]) {
@@ -278,7 +285,7 @@ export const addPlayer = (_this: any) => {
     _this.player = _this.physics.add.sprite(0, 5, 'knight-walk', 'walk1.png').setScale(1, 1).setSize(36, 49).setOffset(65, 60);
     _this.playerStats = { ...defaultPlayerStats };
     Object.keys(_this.playerStats).forEach(key => {
-        if (key === 'cooldown1') return;
+        if (key === 'cooldown1') updateHudCooldown(key, _this.playerStats[key].current);
         if (key === 'attackSpeed')  updateHudStats(key, 100, _this.playerStats[key].min, _this);
         else updateHudStats(key, _this.playerStats[key].current, _this.playerStats[key].max, _this);
     });

@@ -45,6 +45,12 @@
             }
         }
     }
+    &__fixed {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
     &__healthbar {
         pointer-events: none;
         display: flex;
@@ -55,7 +61,7 @@
         border-radius: 32px;
         border: 4px rgba($color: #000000, $alpha: 0.7) solid;
         background-color: rgba($color: #000000, $alpha: 0.7);
-        position: absolute;
+        position: relative;
         bottom: 0;
         &--inner {
             position: absolute;
@@ -73,6 +79,41 @@
         position: absolute;
         span {
             color: white;
+        }
+    }
+    &__cooldowns {
+        width: 200px;
+        display: flex;
+        margin-bottom: 16px;
+    }
+    .hud-cooldown {
+        &__square {
+            width: 50px;
+            height: 50px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        &__overlay {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            &--active {
+                background-color: green;
+                opacity: 0.5;
+            }
+            &--disabled {
+                background-color: red;
+                opacity: 0.5;
+            }
+        }
+        &__number {
+            color: white;
+            z-index: 1;
+            text-align: center;
         }
     }
 }
