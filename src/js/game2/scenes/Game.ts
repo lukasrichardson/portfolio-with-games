@@ -1,12 +1,30 @@
 
 import gameConstants from '../../constants/game2.constants';
-//@ts-ignore
-import eventsCenter from '../../EventsCenter.js';
 import updateHelperFunctions from './updateHelperFunctions';
 import { addControls, createMapLayers, addPlayer, addPlayerAnims, spawnEnemies, addChangeStatsListener, updateHudCooldown } from './createHelperFunctions';
+//@ts-ignore
+// const client = new Ably.Realtime('ApN8IQ.be-89A:Upr3FcgI9KDzbxxQ');
+const client = new Ably.Realtime({
+    authUrl: `${window.location.origin}/auth`
+});
 const { checkPlayerStats } = updateHelperFunctions;
 
 const { SCENES, defaultPlayerStats } = gameConstants;
+//
+let gameRoom;
+let deadPlayerCh;
+let myClientId;
+let myChannel;
+let gameOn = false;
+let players = {};
+let totalPlayers = 0;
+let latestShipPosition;
+let bulletThatShotMe;
+let bulletThatShotSomeone;
+let bulletOutOfBounds = "";
+let amIalive = false;
+let game;
+//
 
 class MainScene extends Phaser.Scene {
     cursors: Phaser.Types.Input.Keyboard.CursorKeys | any;
@@ -63,13 +81,64 @@ class MainScene extends Phaser.Scene {
     }
     
     create() {
-        addControls(this);
-        createMapLayers(this);
-        addPlayerAnims(this);
-        addPlayer(this);
-        spawnEnemies(this);
-        this.addDebugGraphics();
-        addChangeStatsListener(this);
+        client.connection.once('connected', () => {
+            myClientId = client.auth.clientId;
+            gameRoom = client.channels.get("game-room");
+            deadPlayerCh = client.channels.get("dead-player");
+            myChannel = client.channels.get("clientChannel-" + myClientId);
+            gameRoom.presence.enter();
+            // game = new Phaser.Game(config);
+            gameRoom.subscribe("game-state", (msg: any) => {
+                // console.log('game-state', msg);
+                if (msg.data.gameOn) {
+                  gameOn = true;
+                //   if (msg.data.shipBody["0"]) {
+                //     latestShipPosition = msg.data.shipBody["0"];
+                //   }
+                //   if (msg.data.bulletOrBlank != "") {
+                //     let bulletId = msg.data.bulletOrBlank.id;
+                //     this.visibleBullets[bulletId] = {
+                //       id: bulletId,
+                //       y: msg.data.bulletOrBlank.y,
+                //       toLaunch: true,
+                //       bulletSprite: "",
+                //     };
+                //   }
+                //   if (msg.data.killerBulletId) {
+                //     bulletThatShotSomeone = msg.data.killerBulletId;
+                //   }
+                }
+                players = msg.data.players;
+                totalPlayers = msg.data.playerCount;
+            });
+            gameRoom.subscribe("game-over", (msg: any) => {
+                gameOn = false;
+                // localStorage.setItem("totalPlayers", msg.data.totalPlayers);
+                // localStorage.setItem("winner", msg.data.winner);
+                // localStorage.setItem("firstRunnerUp", msg.data.firstRunnerUp);
+                // localStorage.setItem("secondRunnerUp", msg.data.secondRunnerUp);
+                // gameRoom.unsubscribe();
+                // deadPlayerCh.unsubscribe();
+                // myChannel.unsubscribe();
+                // if (msg.data.winner == "Nobody") {
+                //   window.location.replace(BASE_SERVER_URL + "/gameover");
+                // } else {
+                //   window.location.replace(BASE_SERVER_URL + "/winner");
+                // }
+            });
+            myChannel.subscribe('joined', () => {
+                addControls(this);
+                createMapLayers(this);
+                addPlayerAnims(this);
+                addPlayer(this);
+                spawnEnemies(this);
+                this.addDebugGraphics();
+                addChangeStatsListener(this);
+            })
+            myChannel.publish('pos', {
+                test: 'testing 123'
+            });
+        });
     }
 
     update(time: any, delta: any) {
@@ -241,13 +310,13 @@ class MainScene extends Phaser.Scene {
             }
             // Normalize and scale the velocity so that player can't move faster along a diagonal
             this.container.body.velocity.normalize().scale(speed);
+            // move enemy healthbars with enemies
+            this.redEnemyBar.x = this.redEnemy.x - 10;
+            this.redEnemyBar.y = this.redEnemy.y - 20;
+            this.blueEnemyBar.x = this.blueEnemy.x - 10;
+            this.blueEnemyBar.y = this.blueEnemy.y - 20;
+            checkPlayerStats(this);
         }
-        // move enemy healthbars with enemies
-        this.redEnemyBar.x = this.redEnemy.x - 10;
-        this.redEnemyBar.y = this.redEnemy.y - 20;
-        this.blueEnemyBar.x = this.blueEnemy.x - 10;
-        this.blueEnemyBar.y = this.blueEnemy.y - 20;
-        checkPlayerStats(this);
     }
 
     /* DEBUG HELPER FUNCTIONS */

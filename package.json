@@ -17,6 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "@types/react": "^16.9.56",
+    "ably": "^1.2.4",
     "antd": "^4.8.0",
     "classnames": "^2.2.6",
     "dotenv": "^8.2.0",
@@ -24,11 +25,14 @@
     "express": "^4.17.1",
     "http": "0.0.1-security",
     "mongoose": "^5.10.13",
+    "mqtt": "^4.2.6",
+    "p2": "^0.7.1",
     "path": "^0.12.7",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.3.0",
+    "text-encoding": "^0.7.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
