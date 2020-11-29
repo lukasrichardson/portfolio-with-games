@@ -1,7 +1,7 @@
 // import Phaser from 'phaser';
 import gameConstants from '../../constants/game2.constants';
 
-const { SCENES, dudeHeight, dudeWidth } = gameConstants;
+const { SCENES, dudeHeight, dudeWidth, archer } = gameConstants;
 
 class LoadScene extends Phaser.Scene {
     constructor() {
@@ -33,7 +33,9 @@ class LoadScene extends Phaser.Scene {
         this.load.atlas('atlas', 'atlas.png', 'atlas.json');
         
         this.load.atlas('knight-walk', './game-heroes/sheets/knight-walk.png', './game-heroes/sheets/knight-walk.json');
-        
+
+        this.load.atlas('archer', 'archer.png', 'archer.json');
+
         this.load.spritesheet('redEnemy', 'dude.png', {
             frameWidth: dudeWidth,
             frameHeight: dudeHeight

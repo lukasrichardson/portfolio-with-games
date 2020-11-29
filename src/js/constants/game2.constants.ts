@@ -35,5 +35,9 @@ export default {
             min: 0,
             max: 5000
         }
+    },
+    archer: {
+        width: 51,
+        height: 52
     }
 }

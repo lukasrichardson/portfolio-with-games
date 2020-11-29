@@ -37,6 +37,7 @@ class MainScene extends Phaser.Scene {
     redEnemyContainer: Phaser.GameObjects.Container | any;
     blueEnemyBar: Phaser.GameObjects.Graphics | any;
     hitBy: any
+    lastDirection: any
     playerStats: {
         health: number;
         totalHealth: number;
@@ -90,31 +91,35 @@ class MainScene extends Phaser.Scene {
             let animToPlay = null;
             
             /*PLAYER MOVE HORIZONTAL*/
-            if (/*this.cursors.left.isDown ||*/ this.a_key.isDown) {
+            if (this.a_key.isDown) {
                 isMoving = true;
                 this.container.body.setVelocityX(-100);
-                animToPlay = 'left';
-            } else if (/*this.cursors.right.isDown ||*/ this.d_key.isDown) {
+            } else if (this.d_key.isDown) {
                 isMoving = true;
                 this.container.body.setVelocityX(100);
-                animToPlay = 'right';
-            } else {
             }
             
             /*PLAYER MOVE VERTICAL*/
-            if (/*this.cursors.up.isDown ||*/ this.w_key.isDown) {
+            if (this.w_key.isDown) {
                 isMoving = true;
                 this.container.body.setVelocityY(-100);
-            } else if (/*this.cursors.down.isDown ||*/ this.s_key.isDown) {
+            } else if (this.s_key.isDown) {
                 isMoving = true;
                 this.container.body.setVelocityY(100);
             } else {
             }
-
-            if (this.container.body.velocity.x === 0 && isMoving){
-                if (currentAnimKey.includes('right')) {
-                    animToPlay = 'right';
-                } else animToPlay = 'left';
+            let up = this.w_key.isDown && !this.s_key.isDown && !this.a_key.isDown && !this.d_key.isDown;
+            let down = !this.w_key.isDown && this.s_key.isDown && !this.a_key.isDown && !this.d_key.isDown;
+            let left = !this.w_key.isDown && !this.s_key.isDown && this.a_key.isDown && !this.d_key.isDown;
+            let right = !this.w_key.isDown && !this.s_key.isDown && !this.a_key.isDown && this.d_key.isDown;
+            if ((this.lastDirection === 'up' && this.w_key.isDown) || up) {
+                animToPlay = 'walk-up';
+            } else if ((this.lastDirection === 'down' && this.s_key.isDown) || down) {
+                animToPlay = 'walk-down';
+            } else if ((this.lastDirection === 'left' && this.a_key.isDown) || left) {
+                animToPlay = 'walk-left';
+            } else if ((this.lastDirection === 'right' && this.d_key.isDown) || right) {
+                animToPlay = 'walk-right';
             }
 
             // check if left mouse button is clicked
@@ -137,21 +142,21 @@ class MainScene extends Phaser.Scene {
                 }
                 
                 if (this.isAutoAttacking === 'left') {
-                    animToPlay = 'attack-left';
+                    animToPlay = 'auto-attack-left';
                     this.hitBox.setSize(46, 54);
                     this.hitBox.x = -35;
                     this.hitBox.y = -10;
                     speed *= 0.7;
                     isAttacking = true;
                 } else if (this.isAutoAttacking === 'right') {
-                    animToPlay = 'attack-right';
+                    animToPlay = 'auto-attack-right';
                     this.hitBox.setSize(46, 54);
                     this.hitBox.x = 35;
                     this.hitBox.y = -10;
                     speed *=0.7;
                     isAttacking = true;
                 }
-                if (this.player.anims.currentFrame.textureFrame.includes('auto_') && this.player.anims.currentFrame.isLast) {
+                if (this.player.anims.currentFrame.textureFrame.includes('auto-attack') && this.player.anims.currentFrame.isLast) {
                     isAttacking = false;
                     this.isAutoAttacking = false;
                     animToPlay = null;
@@ -162,60 +167,60 @@ class MainScene extends Phaser.Scene {
             }
 
             //shift button input
-            if (this.shift.isDown) {
-                isAttacking = true;
-                let movingRight = this.d_key.isDown && this.container.body.velocity.x > 0;
-                let movingLeft = this.a_key.isDown && this.container.body.velocity.x < 0;
-                if ((movingRight && !currentAnimKey.includes('left')) || (currentAnimKey.includes('right') && !movingLeft)) {
-                    this.isExtraAttacking = 'right';
-                    this.hitBox.setSize(46, 54);
-                    this.hitBox.x = 35;
-                    this.hitBox.y = -10;
-                } else if ((!movingRight && currentAnimKey.includes('left')) || (!currentAnimKey.includes('right') && movingLeft)) {
-                    this.isExtraAttacking = 'left';
-                    this.hitBox.setSize(46, 54);
-                    this.hitBox.x = -35;
-                    this.hitBox.y = -10;
-                }
-            }
+            // if (this.shift.isDown) {
+            //     isAttacking = true;
+            //     let movingRight = this.d_key.isDown && this.container.body.velocity.x > 0;
+            //     let movingLeft = this.a_key.isDown && this.container.body.velocity.x < 0;
+            //     if ((movingRight && !currentAnimKey.includes('left')) || (currentAnimKey.includes('right') && !movingLeft)) {
+            //         this.isExtraAttacking = 'right';
+            //         this.hitBox.setSize(46, 54);
+            //         this.hitBox.x = 35;
+            //         this.hitBox.y = -10;
+            //     } else if ((!movingRight && currentAnimKey.includes('left')) || (!currentAnimKey.includes('right') && movingLeft)) {
+            //         this.isExtraAttacking = 'left';
+            //         this.hitBox.setSize(46, 54);
+            //         this.hitBox.x = -35;
+            //         this.hitBox.y = -10;
+            //     }
+            // }
 
-            if (this.isExtraAttacking) {
-                if (this.playerStats.cooldown1.current) {
-                    // let { delay, elapsed } = this.cooldown1;
-                    // if (delay > elapsed) this.isExtraAttacking = false;
-                    if (this.playerStats.cooldown1.current !== 0) {
-                        this.isExtraAttacking = false;
-                    }
-                }
+            // if (this.isExtraAttacking) {
+            //     if (this.playerStats.cooldown1.current) {
+            //         // let { delay, elapsed } = this.cooldown1;
+            //         // if (delay > elapsed) this.isExtraAttacking = false;
+            //         if (this.playerStats.cooldown1.current !== 0) {
+            //             this.isExtraAttacking = false;
+            //         }
+            //     }
                 
-                if (this.isExtraAttacking === 'left') {
-                    animToPlay = 'attack-extra-left';
-                    speed *= 1.5;
-                    isAttacking = true;
-                } else if (this.isExtraAttacking === 'right') {
-                    animToPlay = 'attack-extra-right';
-                    speed *= 1.5;
-                    isAttacking = true;
-                } else {
-                }
-                if (this.player.anims.currentFrame.textureFrame.includes('attack_extra') && this.player.anims.currentFrame.isLast) {
-                    isAttacking = false;
-                    animToPlay = null;
-                    this.isExtraAttacking = false;
-                    // this.cooldown1 = this.time.delayedCall(defaultPlayerStats.cooldown1, () => console.log('ability 1 cooldown is up'), undefined, this);
-                    this.playerStats.cooldown1.current = this.playerStats.cooldown1.max;
-                    updateHudCooldown('cooldown1', this.playerStats.cooldown1.current);
-                    this.time.addEvent({
-                        delay: 1000,
-                        repeat: (this.playerStats.cooldown1.max / 1000) - 1,
-                        callback: () => {
-                            if (this.playerStats.cooldown1.current !== 0) this.playerStats.cooldown1.current -= 1000;
-                            console.log('callback', this.playerStats.cooldown1);
-                            updateHudCooldown('cooldown1', this.playerStats.cooldown1.current);
-                        }
-                    });
-                }
-            }
+            //     if (this.isExtraAttacking === 'left') {
+            //         animToPlay = 'attack-extra-left';
+            //         speed *= 1.5;
+            //         isAttacking = true;
+            //     } else if (this.isExtraAttacking === 'right') {
+            //         animToPlay = 'attack-extra-right';
+            //         speed *= 1.5;
+            //         isAttacking = true;
+            //     } else {
+            //     }
+            //     if (this.player.anims.currentFrame.textureFrame.includes('attack_extra') && this.player.anims.currentFrame.isLast) {
+            //         isAttacking = false;
+            //         animToPlay = null;
+            //         this.isExtraAttacking = false;
+            //         // this.cooldown1 = this.time.delayedCall(defaultPlayerStats.cooldown1, () => console.log('ability 1 cooldown is up'), undefined, this);
+            //         this.playerStats.cooldown1.current = this.playerStats.cooldown1.max;
+            //         updateHudCooldown('cooldown1', this.playerStats.cooldown1.current);
+            //         this.time.addEvent({
+            //             delay: 1000,
+            //             repeat: (this.playerStats.cooldown1.max / 1000) - 1,
+            //             callback: () => {
+            //                 if (this.playerStats.cooldown1.current !== 0) this.playerStats.cooldown1.current -= 1000;
+            //                 console.log('callback', this.playerStats.cooldown1);
+            //                 updateHudCooldown('cooldown1', this.playerStats.cooldown1.current);
+            //             }
+            //         });
+            //     }
+            // }
 
             if (!isAttacking) {
                 this.hitBox.setSize(36, 49);
@@ -232,11 +237,6 @@ class MainScene extends Phaser.Scene {
                 }
             }
             if (animToPlay) {
-                if (animToPlay.includes('right')) {
-                    this.player.setOffset(25, 60);
-                } else {
-                    this.player.setOffset(65, 60);
-                }
                 this.player.anims.play(animToPlay, true);
             }
             // Normalize and scale the velocity so that player can't move faster along a diagonal
