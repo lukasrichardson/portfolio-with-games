@@ -9,6 +9,9 @@ import NavBar from './NavBar';
 import Play from './Pages/Play';
 import Play2 from './Pages/Play2';
 import Home from './Pages/Home';
+import SolarSystemProject from './Pages/SolarSystemProject';
+import BoxShooter from './Pages/BoxShooter';
+import RollerMadness from './Pages/RollerMadness';
 
 const routes = [
     {
@@ -17,15 +20,30 @@ const routes = [
         name: 'Home'
     },
     {
-        path: '/play',
-        component: Play,
-        name: 'Game 1'
+        path: '/solarSystemProject',
+        component: SolarSystemProject,
+        name: 'Solar System Project'
     },
     {
-        path: '/play2',
-        component: Play2,
-        name: 'Game 2'
+        path: '/boxShooter',
+        component: BoxShooter,
+        name: 'Box Shooter'
+    },
+    {
+        path: '/rollerMadness',
+        component: RollerMadness,
+        name: 'Roller Madness'
     }
+    // {
+    //     path: '/play',
+    //     component: Play,
+    //     name: 'Game 1'
+    // },
+    // {
+    //     path: '/play2',
+    //     component: Play2,
+    //     name: 'Game 2'
+    // }
 ]
 
 class App extends Component {

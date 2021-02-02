@@ -160,6 +160,10 @@ export const addControls = (_this: any) => {
         }
     });
     _this.shift = _this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
+    _this.input.on('pointerdown', (a, b) => {
+        console.log('pointer down', a, b);
+        _this.socket.emit('pointerdown');
+    })
 }
 
 export const createMapLayers = (_this: any) => {

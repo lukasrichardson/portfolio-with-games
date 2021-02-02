@@ -1,4 +1,3 @@
-// import Phaser from 'phaser';
 import gameConstants from '../../constants/game.constants';
 
 const { SCENES, dudeHeight, dudeWidth } = gameConstants;

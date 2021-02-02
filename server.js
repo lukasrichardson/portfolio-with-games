@@ -10,14 +10,15 @@ const io = require('socket.io')(http);
 const socketHandler = require('./server/socketHandler');
 
 
-const Ably = require('ably');
-const client = new Ably.Realtime('ApN8IQ.be-89A:Upr3FcgI9KDzbxxQ');
+// const Ably = require('ably');
+// const client = new Ably.Realtime('ApN8IQ.be-89A:Upr3FcgI9KDzbxxQ');
 
-let totalPlayers = 0;
-let test = 0;
-client.connection.once('connected', () => {
-handleRealtimeMessages(client, totalPlayers, test);
-})
+// let totalPlayers = 0;
+
+// let test = 0;
+// client.connection.once('connected', () => {
+// handleRealtimeMessages(client, totalPlayers, test);
+// })
 
 
 // const mongoose = require('mongoose');
@@ -27,14 +28,13 @@ handleRealtimeMessages(client, totalPlayers, test);
 // db.on('error', error => console.error(error));
 // db.once('open', () => console.log('Connected to Database'));
 
-const game2Players = {};
+const game1Players = {};
 const rooms = {};
 
 const bullets = {};
 
-io.on('connection', socket => {
-    socketHandler(socket, io, game2Players, bullets, rooms);
-});
+
+handleRealtimeMessages(io);
 
 
 app.use(express.json());
@@ -61,6 +61,9 @@ app.get("/auth", (request, response) => {
     }
   });
 });
+app.get('/custom', (req, res) => {
+  res.sendFile(path.join(__dirname + '/dist/solarSystem.html'));
+})
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname + '/dist/index.html'));
 });

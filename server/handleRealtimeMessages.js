@@ -7,226 +7,161 @@ const p2 = require("p2");
 // const PLAYER_VERTICAL_MOVEMENT_UPDATE_INTERVAL = 1000;
 // const PLAYER_SCORE_INCREMENT = 5;
 const P2_WORLD_TIME_STEP = 1 / 16;
+// const P2_WORLD_TIME_STEP = 10;
 const MIN_PLAYERS = 1;
-const GAME_TICKER_MS = 100;
+const GAME_TICKER_MS = 30;
 
-const main = (client, totalPlayers, test) => {
-        let players = {};
-        let playerChannels = {};
-        let gameOn = false;
+const handleRealtimeMessages = (io) => {
+    let players = {};
+    let playerBodies = {};
+    let world;
+    let gameOn = false;
+
+    io.on('connection', socket => {
+        // let gameOn = false;
         let alivePlayers = 0;
         let gameRoom;
-        // let deadPlayerCh;
         let gameTickerOn = false;
-        let world;
-        console.log('server connected as client');
-        gameRoom = client.channels.get('game-room');
-        // deadPlayerCh = client.channels.get('dead-player');
-        gameRoom.presence.subscribe('enter', player => {
-            let newPlayerId;
-            let newPlayerData;
-            alivePlayers ++;
-            totalPlayers ++;
-            test ++;
-            console.log('enter:', totalPlayers, test);
-            if (totalPlayers === 1) {
+        let playerBody;
+        socket.on('askToJoin', ({ username, roomNumber}) => {
+            if (!roomNumber) roomNumber = 0;
+            if (!players[roomNumber]) {
+                console.log('test1', username, roomNumber);
+                socket.emit('allowJoin', { username, roomNumber });
+            } else {
+                console.log('test2', username, roomNumber);
+                if (!players[roomNumber][username]) {
+                    console.log('test3', username, roomNumber);
+                    socket.emit('allowJoin', { username, roomNumber });
+                } else {
+                    console.log('test4', username, roomNumber);
+                    socket.emit('denyJoin');
+                }
+            }
+        });
+        socket.on('joinRoom', ({ username, roomNumber}) => {
+            if (!roomNumber) roomNumber = 0;
+            // add socketId to room
+            socket.join(roomNumber);
+            socket.roomNumber = roomNumber;
+            // initialize room if it doesnt exist
+            if (!players[roomNumber]) players[roomNumber] = {};
+            // add new player to players object
+            players[roomNumber][socket.id] = {
+                rotation: 0,
+                x: Math.floor(Math.random() * 400) + 50,
+                y: Math.floor(Math.random() * 400) + 50,
+                playerId: socket.id,
+                roomNumber,
+                username: username,
+                yVel: 0,
+                xVel: 0
+            };
+            // send players object to the new player
+            // socket.emit('currentPlayers', players[roomNumber]);
+            // update all other players of new player
+            // socket.broadcast.to(roomNumber).emit('newPlayer', players[roomNumber][socket.id]);
+            if (!gameOn) {
+                startGame();
                 gameTickerOn = true;
                 startGameDataTicker();
             }
-
-            newPlayerId = player.clientId;
-            playerChannels[newPlayerId] = client.channels.get(`clientChannel-${player.clientId}`);
-
-            newPlayerData = {
-                id: newPlayerId,
-                x: 100,
-                y: 200,
-                isAlive: true
-            };
-            players[newPlayerId] = newPlayerData;
-            
-            if (totalPlayers === MIN_PLAYERS) startShipAndBullets();
-            subscribeToPlayerInput(playerChannels[newPlayerId], newPlayerId);
+            createPlayer(roomNumber);
+            socket.emit('joined', roomNumber);
+            // if (totalPlayers === MIN_PLAYERS);
         });
-        gameRoom.presence.subscribe('leave', player => {
-            console.log('leave :(', totalPlayers);
-            let leavingPlayer = player.clientId;
-            alivePlayers--;
-            totalPlayers--;
-            delete players[leavingPlayer];
-            if (totalPlayers <= 0) {
-                resetServerState();
+        socket.on('pos', ({xVel, yVel}) => {
+            if (playerBodies[socket.roomNumber] && playerBodies[socket.roomNumber][socket.id]) {
+                if (playerBodies[socket.roomNumber][socket.id].velocity[0] !== xVel || playerBodies[socket.roomNumber][socket.id].velocity[1] !== yVel) {
+                    playerBodies[socket.roomNumber][socket.id].velocity = [xVel, yVel];
+                }
             }
         });
-        // deadPlayerCh.subscribe('dead-notif', msg => {
-        //     players[msg.data.deadPlayerId].isAlive = false;
-        //     // killerBulletId = msg.data.killerBulletId;
-        //     alivePlayers--;
-        //     if (alivePlayers == 0) {
-        //         setTimeout(() => {
-        //         finishGame("");
-        //         }, 1000);
-        //     }
-        // });
+        socket.on('pointerdown', () => {
+            console.log('pointerdown', players[socket.roomNumber][socket.id] || null);
+        })
 
-    function startGameDataTicker() {
-        let tickInterval = setInterval(() => {
-            // console.log('gasme-tick', gameTickerOn);
-            if (!gameTickerOn) {
-            clearInterval(tickInterval);
-            } else {
-            //   bulletOrBlank = "";
-            //   bulletTimer += GAME_TICKER_MS;
-            //   if (bulletTimer >= GAME_TICKER_MS * 5) {
-                // bulletTimer = 0;
-                // bulletOrBlank = {
-                //   y: SHIP_PLATFORM,
-                //   id:
-                //     "bulletId-" + Math.floor((Math.random() * 2000 + 50) * 1000) / 1000,
-                // };
-            //   }
-            //   if (shipBody) {
-            //     copyOfShipBody = shipBody;
-            //   }
-            gameRoom.publish("game-state", {
-                players: players,
-                playerCount: totalPlayers,
-                // shipBody: copyOfShipBody.position,
-                // bulletOrBlank: bulletOrBlank,
-                gameOn: gameOn,
-                // killerBullet: killerBulletId,
+        function startGameDataTicker() {
+            console.log('start ticker!');
+            let tickInterval = setInterval(() => {
+                if (!gameTickerOn) {
+                clearInterval(tickInterval);
+                } else {
+                    io.to(socket.roomNumber).emit('game-state', JSON.stringify({
+                        players: players[socket.roomNumber],
+                        gameOn: gameOn
+                    }))
+                }
+            }, GAME_TICKER_MS);
+        };
+        function resetServerState() {
+            // peopleAccessingTheWebsite = 0;
+            gameOn = false;
+            gameTickerOn = false;
+            // totalPlayers = 0;
+            alivePlayers = 0;
+            for (let item in playerChannels) {
+                playerChannels[item].unsubscribe();
+            }
+        };
+        function startGame() {
+            gameOn = true;
+
+            world = new p2.World({
+                gravity: [0, 0],
             });
+            startMovingPhysicsWorld();
+        };
+        function createPlayer () {
+            if (!gameOn) return;
+            let player = players[socket.roomNumber][socket.id]
+            let { x, y } = player;
+            let newBody = new p2.Body({
+                position: [x, y],
+                velocity: [0, 0]
+            });
+            if (playerBodies[socket.roomNumber]) {
+                playerBodies[socket.roomNumber][socket.id] = newBody;
+            } else playerBodies[socket.roomNumber] = {
+                [socket.id]: newBody
             }
-        }, GAME_TICKER_MS);
-    };
-    function subscribeToPlayerInput(channelInstance, playerId) {
-        channelInstance.subscribe("pos", (msg) => {
-            if (msg.data.keyPressed == "left") {
-            if (players[playerId].x - 20 < 20) {
-                players[playerId].x = 20;
-            } else {
-                players[playerId].x -= 20;
-            }
-            } else if (msg.data.keyPressed == "right") {
-            if (players[playerId].x + 20 > 1380) {
-                players[playerId].x = 1380;
-            } else {
-                players[playerId].x += 20;
-            }
-            }
-        });
-        channelInstance.publish('joined', 'true');
-    };
-    function startDownwardMovement(playerId) {
-        // let interval = setInterval(() => {
-        //     if (players[playerId] && players[playerId].isAlive) {
-        //       players[playerId].y += PLAYER_VERTICAL_INCREMENT;
-        //       players[playerId].score += PLAYER_SCORE_INCREMENT;
-        
-        //       if (players[playerId].y > SHIP_PLATFORM) {
-        //         finishGame(playerId);
-        //         clearInterval(interval);
-        //       }
-        //     } else {
-        //       clearInterval(interval);
-        //     }
-        //   }, PLAYER_VERTICAL_MOVEMENT_UPDATE_INTERVAL);
-    };
-    function finishGame () {
-    //     let firstRunnerUpName = "";
-    //   let secondRunnerUpName = "";
-    //   let winnerName = "Nobody";
-    //   let leftoverPlayers = new Array();
-    //   for (let item in players) {
-    //     leftoverPlayers.push({
-    //       nickname: players[item].nickname,
-    //       score: players[item].score,
-    //     });
-    //   }
-
-    //   leftoverPlayers.sort((a, b) => {
-    //     return b.score - a.score;
-    //   });
-    //   if (playerId == "") {
-    //     if (leftoverPlayers.length >= 3) {
-    //       firstRunnerUpName = leftoverPlayers[0].nickname;
-    //       secondRunnerUpName = leftoverPlayers[1].nickname;
-    //     } else if (leftoverPlayers == 2) {
-    //       firstRunnerUp = leftoverPlayers[0].nickname;
-    //     }
-    //   } else {
-    //     winnerName = players[playerId].nickname;
-    //     if (leftoverPlayers.length >= 3) {
-    //       firstRunnerUpName = leftoverPlayers[1].nickname;
-    //       secondRunnerUpName = leftoverPlayers[2].nickname;
-    //     } else if (leftoverPlayers.length == 2) {
-    //       firstRunnerUpName = leftoverPlayers[1].nickname;
-    //     }
-    //   }
-
-    //   gameRoom.publish("game-over", {
-    //     winner: winnerName,
-    //     firstRunnerUp: firstRunnerUpName,
-    //     secondRunnerUp: secondRunnerUpName,
-    //     totalPlayers: totalPlayers,
-    //   });
-
-    //   resetServerState();
-    };
-    function resetServerState() {
-        // peopleAccessingTheWebsite = 0;
-        gameOn = false;
-        gameTickerOn = false;
-        totalPlayers = 0;
-        alivePlayers = 0;
-        for (let item in playerChannels) {
-            playerChannels[item].unsubscribe();
+            console.log('mewplayer', socket.id);
+            world.addBody(newBody);
         }
-    };
-    function startShipAndBullets() {
-        gameOn = true;
+        function startMovingPhysicsWorld() {
+            let p2WorldInterval = setInterval(function () {
+                if (!gameOn) {
+                clearInterval(p2WorldInterval);
+                } else {
+                // updates velocity every 5 seconds
+                //   if (++shipVelocityTimer >= 80) {
+                //     shipVelocityTimer = 0;
+                //     shipBody.velocity[0] = calcRandomVelocity();
+                //   }
+                for (let id of Object.keys(players[socket.roomNumber])) {
+                    players[socket.roomNumber][id] = {
+                        ...players[socket.roomNumber][id],
+                        x: playerBodies[socket.roomNumber][id].position[0],
+                        y: playerBodies[socket.roomNumber][id].position[1],
+                        xVel: playerBodies[socket.roomNumber][id].velocity[0],
+                        yVel: playerBodies[socket.roomNumber][id].velocity[1]
+                    }
+                }
+                world.step(P2_WORLD_TIME_STEP);
+                //   if (shipBody.position[0] > 1400 && shipBody.velocity[0] > 0) {
+                //     shipBody.position[0] = 0;
+                //   } else if (shipBody.position[0] < 0 && shipBody.velocity[0] < 0) {
+                //     shipBody.position[0] = 1400;
+                //   }
+                }
+            }, 1000 * P2_WORLD_TIME_STEP);
+        };
+        function calcRandomVelocity() {
+            let randomShipXVelocity = Math.floor(Math.random() * 200) + 20;
+            randomShipXVelocity *= Math.floor(Math.random() * 2) == 1 ? 1 : -1;
+            return randomShipXVelocity;
+        };
+    });
+};
 
-        world = new p2.World({
-            gravity: [0, 0],
-        });
-        // shipBody = new p2.Body({
-        //     position: [shipX, shipY],
-        //     velocity: [calcRandomVelocity(), 0],
-        // });
-        // world.addBody(shipBody);
-        startMovingPhysicsWorld();
-
-        for (let playerId in players) {
-            startDownwardMovement(playerId);
-        }
-    }; 
-    function startMovingPhysicsWorld() {
-        let p2WorldInterval = setInterval(function () {
-            if (!gameOn) {
-            clearInterval(p2WorldInterval);
-            } else {
-            // updates velocity every 5 seconds
-            //   if (++shipVelocityTimer >= 80) {
-            //     shipVelocityTimer = 0;
-            //     shipBody.velocity[0] = calcRandomVelocity();
-            //   }
-            world.step(P2_WORLD_TIME_STEP);
-            //   if (shipBody.position[0] > 1400 && shipBody.velocity[0] > 0) {
-            //     shipBody.position[0] = 0;
-            //   } else if (shipBody.position[0] < 0 && shipBody.velocity[0] < 0) {
-            //     shipBody.position[0] = 1400;
-            //   }
-            }
-        }, 1000 * P2_WORLD_TIME_STEP);
-    };
-    function calcRandomVelocity() {
-        let randomShipXVelocity = Math.floor(Math.random() * 200) + 20;
-        randomShipXVelocity *= Math.floor(Math.random() * 2) == 1 ? 1 : -1;
-        return randomShipXVelocity;
-    };
-    function randomAvatarSeclection() {
-        return Math.floor(Math.random() * 3);
-    };
-}
-
-module.exports = main;
+module.exports = handleRealtimeMessages;

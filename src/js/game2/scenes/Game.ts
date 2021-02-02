@@ -3,28 +3,11 @@ import gameConstants from '../../constants/game2.constants';
 import updateHelperFunctions from './updateHelperFunctions';
 import { addControls, createMapLayers, addPlayer, addPlayerAnims, spawnEnemies, addChangeStatsListener, updateHudCooldown } from './createHelperFunctions';
 //@ts-ignore
-// const client = new Ably.Realtime('ApN8IQ.be-89A:Upr3FcgI9KDzbxxQ');
-const client = new Ably.Realtime({
-    authUrl: `${window.location.origin}/auth`
-});
+const socket = io();
 const { checkPlayerStats } = updateHelperFunctions;
 
 const { SCENES, defaultPlayerStats } = gameConstants;
-//
-let gameRoom;
-let deadPlayerCh;
-let myClientId;
-let myChannel;
-let gameOn = false;
-let players = {};
-let totalPlayers = 0;
-let latestShipPosition;
-let bulletThatShotMe;
-let bulletThatShotSomeone;
-let bulletOutOfBounds = "";
-let amIalive = false;
-let game;
-//
+let gameState: any;
 
 class MainScene extends Phaser.Scene {
     cursors: Phaser.Types.Input.Keyboard.CursorKeys | any;
@@ -81,64 +64,30 @@ class MainScene extends Phaser.Scene {
     }
     
     create() {
-        client.connection.once('connected', () => {
-            myClientId = client.auth.clientId;
-            gameRoom = client.channels.get("game-room");
-            deadPlayerCh = client.channels.get("dead-player");
-            myChannel = client.channels.get("clientChannel-" + myClientId);
-            gameRoom.presence.enter();
-            // game = new Phaser.Game(config);
-            gameRoom.subscribe("game-state", (msg: any) => {
-                // console.log('game-state', msg);
-                if (msg.data.gameOn) {
-                  gameOn = true;
-                //   if (msg.data.shipBody["0"]) {
-                //     latestShipPosition = msg.data.shipBody["0"];
-                //   }
-                //   if (msg.data.bulletOrBlank != "") {
-                //     let bulletId = msg.data.bulletOrBlank.id;
-                //     this.visibleBullets[bulletId] = {
-                //       id: bulletId,
-                //       y: msg.data.bulletOrBlank.y,
-                //       toLaunch: true,
-                //       bulletSprite: "",
-                //     };
-                //   }
-                //   if (msg.data.killerBulletId) {
-                //     bulletThatShotSomeone = msg.data.killerBulletId;
-                //   }
-                }
-                players = msg.data.players;
-                totalPlayers = msg.data.playerCount;
-            });
-            gameRoom.subscribe("game-over", (msg: any) => {
-                gameOn = false;
-                // localStorage.setItem("totalPlayers", msg.data.totalPlayers);
-                // localStorage.setItem("winner", msg.data.winner);
-                // localStorage.setItem("firstRunnerUp", msg.data.firstRunnerUp);
-                // localStorage.setItem("secondRunnerUp", msg.data.secondRunnerUp);
-                // gameRoom.unsubscribe();
-                // deadPlayerCh.unsubscribe();
-                // myChannel.unsubscribe();
-                // if (msg.data.winner == "Nobody") {
-                //   window.location.replace(BASE_SERVER_URL + "/gameover");
-                // } else {
-                //   window.location.replace(BASE_SERVER_URL + "/winner");
-                // }
-            });
-            myChannel.subscribe('joined', () => {
-                addControls(this);
-                createMapLayers(this);
-                addPlayerAnims(this);
-                addPlayer(this);
-                spawnEnemies(this);
-                this.addDebugGraphics();
-                addChangeStatsListener(this);
-            })
-            myChannel.publish('pos', {
-                test: 'testing 123'
-            });
+        this.socket = socket;
+        this.socket.on('joined', (roomNumber: any) => {
+            this.socket.roomNumber = roomNumber;
+            addControls(this);
+            createMapLayers(this);
+            addPlayerAnims(this);
+            addPlayer(this);
+            spawnEnemies(this);
+            this.addDebugGraphics();
+            addChangeStatsListener(this);
         });
+        this.socket.on('game-state', (data: any) => {
+            let gameData = JSON.parse(data);
+            if (gameState !== gameData) {
+                gameState = gameData;
+            }
+        });
+        this.socket.emit('joinRoom', {
+            username: 'lukas-test',
+            roomNumber: 0
+        });
+        // this.input.on('pointerdown', (a, b) => {
+        //     console.log('pointer down', a, b);
+        // })
     }
 
     update(time: any, delta: any) {
@@ -151,30 +100,37 @@ class MainScene extends Phaser.Scene {
         
         //only apply updates once player container and hitbox exists
         if (this.container && this.hitBox && this.player) {
+            this.updatePlayers();
             const { key: currentAnimKey } = this.player.anims.currentAnim;
             let speed = this.playerStats.speed.current; //default speed
             const prevVelocity = this.container.body.velocity.clone();
-            this.container.body.setVelocity(0);
+            // this.container.body.setVelocity(0);
             let isMoving = false;
             let isAttacking = false;
             let animToPlay = null;
+            let yVel = 0;
+            let xVel = 0;
             
             /*PLAYER MOVE HORIZONTAL*/
             if (this.a_key.isDown) {
                 isMoving = true;
-                this.container.body.setVelocityX(-100);
+                // this.container.body.setVelocityX(-100);
+                xVel = -100;
             } else if (this.d_key.isDown) {
                 isMoving = true;
-                this.container.body.setVelocityX(100);
+                // this.container.body.setVelocityX(100);
+                xVel = 100;
             }
             
             /*PLAYER MOVE VERTICAL*/
             if (this.w_key.isDown) {
                 isMoving = true;
-                this.container.body.setVelocityY(-100);
+                // this.container.body.setVelocityY(-100);
+                yVel = -100;
             } else if (this.s_key.isDown) {
                 isMoving = true;
-                this.container.body.setVelocityY(100);
+                // this.container.body.setVelocityY(100);
+                yVel = 100;
             } else {
             }
             let up = this.w_key.isDown && !this.s_key.isDown && !this.a_key.isDown && !this.d_key.isDown;
@@ -235,62 +191,6 @@ class MainScene extends Phaser.Scene {
                 
             }
 
-            //shift button input
-            // if (this.shift.isDown) {
-            //     isAttacking = true;
-            //     let movingRight = this.d_key.isDown && this.container.body.velocity.x > 0;
-            //     let movingLeft = this.a_key.isDown && this.container.body.velocity.x < 0;
-            //     if ((movingRight && !currentAnimKey.includes('left')) || (currentAnimKey.includes('right') && !movingLeft)) {
-            //         this.isExtraAttacking = 'right';
-            //         this.hitBox.setSize(46, 54);
-            //         this.hitBox.x = 35;
-            //         this.hitBox.y = -10;
-            //     } else if ((!movingRight && currentAnimKey.includes('left')) || (!currentAnimKey.includes('right') && movingLeft)) {
-            //         this.isExtraAttacking = 'left';
-            //         this.hitBox.setSize(46, 54);
-            //         this.hitBox.x = -35;
-            //         this.hitBox.y = -10;
-            //     }
-            // }
-
-            // if (this.isExtraAttacking) {
-            //     if (this.playerStats.cooldown1.current) {
-            //         // let { delay, elapsed } = this.cooldown1;
-            //         // if (delay > elapsed) this.isExtraAttacking = false;
-            //         if (this.playerStats.cooldown1.current !== 0) {
-            //             this.isExtraAttacking = false;
-            //         }
-            //     }
-                
-            //     if (this.isExtraAttacking === 'left') {
-            //         animToPlay = 'attack-extra-left';
-            //         speed *= 1.5;
-            //         isAttacking = true;
-            //     } else if (this.isExtraAttacking === 'right') {
-            //         animToPlay = 'attack-extra-right';
-            //         speed *= 1.5;
-            //         isAttacking = true;
-            //     } else {
-            //     }
-            //     if (this.player.anims.currentFrame.textureFrame.includes('attack_extra') && this.player.anims.currentFrame.isLast) {
-            //         isAttacking = false;
-            //         animToPlay = null;
-            //         this.isExtraAttacking = false;
-            //         // this.cooldown1 = this.time.delayedCall(defaultPlayerStats.cooldown1, () => console.log('ability 1 cooldown is up'), undefined, this);
-            //         this.playerStats.cooldown1.current = this.playerStats.cooldown1.max;
-            //         updateHudCooldown('cooldown1', this.playerStats.cooldown1.current);
-            //         this.time.addEvent({
-            //             delay: 1000,
-            //             repeat: (this.playerStats.cooldown1.max / 1000) - 1,
-            //             callback: () => {
-            //                 if (this.playerStats.cooldown1.current !== 0) this.playerStats.cooldown1.current -= 1000;
-            //                 console.log('callback', this.playerStats.cooldown1);
-            //                 updateHudCooldown('cooldown1', this.playerStats.cooldown1.current);
-            //             }
-            //         });
-            //     }
-            // }
-
             if (!isAttacking) {
                 this.hitBox.setSize(36, 49);
                 this.hitBox.x = 0;
@@ -309,14 +209,42 @@ class MainScene extends Phaser.Scene {
                 this.player.anims.play(animToPlay, true);
             }
             // Normalize and scale the velocity so that player can't move faster along a diagonal
-            this.container.body.velocity.normalize().scale(speed);
+            // this.container.body.velocity.normalize().scale(speed);
             // move enemy healthbars with enemies
             this.redEnemyBar.x = this.redEnemy.x - 10;
             this.redEnemyBar.y = this.redEnemy.y - 20;
             this.blueEnemyBar.x = this.blueEnemy.x - 10;
             this.blueEnemyBar.y = this.blueEnemy.y - 20;
             checkPlayerStats(this);
+            this.emitMyInput(xVel, yVel);
         }
+    }
+
+    updatePlayers = () => {
+        if (!gameState) return;
+        for (let id of Object.keys(gameState.players)) {
+            let player = gameState.players[id];
+            if (id === this.socket.id) {
+                // if (this.container.x !== player.x || this.container.y !== player.y) {
+                    if (this.container.xVel !== player.xVel || this.container.yVel !== player.yVel) {
+                    let speed = this.playerStats.speed.current; //default speed
+                    // this.container.x = player.x;
+                    // this.container.y = player.y;
+                    this.container.body.setVelocityX(player.xVel);
+                    this.container.body.setVelocityY(player.yVel);
+                    this.container.body.velocity.normalize().scale(speed);
+                }
+            } else {
+
+            }
+        }
+    }
+
+    emitMyInput = (xVel: any, yVel: any) => {
+        this.socket.emit('pos', {
+            xVel,
+            yVel
+        });
     }
 
     /* DEBUG HELPER FUNCTIONS */
