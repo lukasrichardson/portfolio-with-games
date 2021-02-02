@@ -1,3 +1,5 @@
+import { addPlayer } from './createHelperFunctions';
+
 const respawnPlayer = (_this: any) => {
     _this.player.anims.stop();
     _this.player.destroy();
@@ -8,12 +10,13 @@ const respawnPlayer = (_this: any) => {
     _this.container = null;
     _this.isExtraAttacking = false;
     _this.isAutoAttacking = false;
-    _this.addPlayer();
+    console.log('respawn player', _this.playerStats);
+    addPlayer(_this);
 };
 
 const checkPlayerStats = (_this: any) => {
     if (_this.player) {
-        if (_this.playerStats.health <= 0) {
+        if (_this.playerStats.health.current <= 0) {
             respawnPlayer(_this);
         }
     }

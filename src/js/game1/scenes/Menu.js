@@ -136,6 +136,7 @@ class MenuScene extends Phaser.Scene {
                         if (this.roomsDropdown) {
                             roomNumberDropdown = this.roomsDropdown.value;
                         }
+                        console.log('ask to join', usernameTyped, roomNumberTyped);
                         this.socket.emit('askToJoin', {
                             username: usernameTyped,
                             roomNumber: roomNumberTyped || roomNumberDropdown

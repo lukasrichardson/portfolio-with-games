@@ -6,6 +6,7 @@ const socketHandler = async (socket, io, players, bullets, rooms) => {
     socket.on('askToJoin', request => {
         let { username, roomNumber } = request;
         if (!players[roomNumber]) {
+            console.log('allowjoin', username, roomNumber);
             socket.emit('allowJoin', { username, roomNumber });
         } else {
             if (!players[roomNumber][username]) {

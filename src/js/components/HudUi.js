@@ -52,7 +52,6 @@ class HudUi extends Component {
             this.setStatValue(name, value, total);
         });
         eventsCenter.on('updateHudCooldown', ({ name, value }) => {
-            console.log('updatehudcooldown', name, value);
             this.setCooldownValue(name, value);
         })
     }

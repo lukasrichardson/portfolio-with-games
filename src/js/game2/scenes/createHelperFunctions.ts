@@ -24,7 +24,7 @@ const collideWithEnemy = (_this: any) => (container: any, enemy: any) => {
     if (!_this.hitBy[name]) {
         _this.hitBy[name] = name;
         _this.playerStats.health.current -= 10;
-        // eventsCenter.emit('damage', _this.playerStats);
+       updateHudStats('health', _this.playerStats.health.current, _this.playerStats.health.max, _this);
         _this.player.setTint(0xFF0000);
         _this.time.delayedCall(500, () => {
             delete _this.hitBy[name];
@@ -128,6 +128,19 @@ export const addControls = (_this: any) => {
     _this.a_key = _this.input.keyboard.addKey('A');
     _this.s_key = _this.input.keyboard.addKey('S');
     _this.d_key = _this.input.keyboard.addKey('D');
+    _this.w_key.on('down', () => {
+        _this.lastDirection = 'up';
+    });
+    _this.a_key.on('down', () => {
+        _this.lastDirection = 'left';
+    });
+    _this.s_key.on('down', () => {
+        _this.lastDirection = 'down';
+    });
+    _this.d_key.on('down', () => {
+        _this.lastDirection = 'right';
+    });
+    
     _this.e_key = _this.input.keyboard.addKey('E');
     _this.i_key = _this.input.keyboard.addKey('I');
     _this.i_key.on('down', () => {
@@ -147,6 +160,10 @@ export const addControls = (_this: any) => {
         }
     });
     _this.shift = _this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
+    _this.input.on('pointerdown', (a, b) => {
+        console.log('pointer down', a, b);
+        _this.socket.emit('pointerdown');
+    })
 }
 
 export const createMapLayers = (_this: any) => {
@@ -175,115 +192,229 @@ export const createMapLayers = (_this: any) => {
 }
 
 export const addPlayerAnims = (_this: any) => {
-    //create player animations
+    //create player animations viking
+    // _this.anims.create({
+    //     key: 'right',
+    //     frameRate: 10,
+    //     frames: _this.anims.generateFrameNames('knight-walk', {
+    //         prefix: 'walk',
+    //         suffix: '.png',
+    //         start: 1,
+    //         end: 6
+    //     }),
+    //     repeat: -1
+
+    // });
+    // _this.anims.create({
+    //     key: 'left',
+    //     frameRate: 10,
+    //     frames: _this.anims.generateFrameNames('knight-walk', {
+    //         prefix: 'left-walk',
+    //         suffix: '.png',
+    //         start: 1,
+    //         end: 6
+    //     }),
+    //     repeat: -1
+
+    // });
+    // _this.anims.create({
+    //     key: 'attack-right',
+    //     frameRate: 16,
+    //     frames: _this.anims.generateFrameNames('knight-walk', {
+    //         prefix: 'auto_attack',
+    //         suffix: '.png',
+    //         start: 0,
+    //         end: 4
+    //     }),
+    //     repeat: -1
+
+    // });
+    // _this.anims.create({
+    //     key: 'attack-left',
+    //     frameRate: 16,
+    //     frames: _this.anims.generateFrameNames('knight-walk', {
+    //         prefix: 'auto_left-attack',
+    //         suffix: '.png',
+    //         start: 0,
+    //         end: 4
+    //     }),
+    //     repeat: -1
+
+    // });
+    // _this.anims.create({
+    //     key: 'idle-left',
+    //     frameRate: 10,
+    //     frames: _this.anims.generateFrameNames('knight-walk', {
+    //         prefix: 'left-walk',
+    //         suffix: '.png',
+    //         start: 1,
+    //         end: 1
+    //     }),
+    //     repeat: -1
+
+    // });
+    // _this.anims.create({
+    //     key: 'idle-right',
+    //     frameRate: 10,
+    //     frames: _this.anims.generateFrameNames('knight-walk', {
+    //         prefix: 'walk',
+    //         suffix: '.png',
+    //         start: 1,
+    //         end: 1
+    //     }),
+    //     repeat: -1
+
+    // });
+    // _this.anims.create({
+    //     key: 'attack-extra-left',
+    //     frameRate: 10,
+    //     frames: _this.anims.generateFrameNames('knight-walk', {
+    //         prefix: 'left-attack_extra',
+    //         suffix: '.png',
+    //         start: 1,
+    //         end: 8
+    //     }),
+    //     repeat: -1
+
+    // });
+    // _this.anims.create({
+    //     key: 'attack-extra-right',
+    //     frameRate: 10,
+    //     frames: _this.anims.generateFrameNames('knight-walk', {
+    //         prefix: 'attack_extra',
+    //         suffix: '.png',
+    //         start: 1,
+    //         end: 8
+    //     }),
+    //     repeat: -1
+
+    // });
+     // archer
+     _this.anims.create({
+        key: 'walk-down',
+        frameRate: 14,
+        frames: _this.anims.generateFrameNames('archer', {
+            prefix: 'archer-',
+            suffix: '.png',
+            start: 78,
+            end: 86
+        }),
+        repeat: -1
+    });
     _this.anims.create({
-        key: 'right',
-        frameRate: 10,
-        frames: _this.anims.generateFrameNames('knight-walk', {
-            prefix: 'walk',
+        key: 'walk-up',
+        frameRate: 14,
+        frames: _this.anims.generateFrameNames('archer', {
+            prefix: 'archer-',
+            suffix: '.png',
+            start: 60,
+            end: 68
+        }),
+        repeat: -1
+    });
+    _this.anims.create({
+        key: 'walk-left',
+        frameRate: 12,
+        frames: _this.anims.generateFrameNames('archer', {
+            prefix: 'archer-',
+            suffix: '.png',
+            start: 69,
+            end: 76
+        }),
+        repeat: -1
+    });
+    _this.anims.create({
+        key: 'walk-right',
+        frameRate: 12,
+        frames: _this.anims.generateFrameNames('archer', {
+            prefix: 'archer-',
+            suffix: '.png',
+            start: 87,
+            end: 94
+        }),
+        repeat: -1
+    });
+    _this.anims.create({
+        key: 'auto-attack-up',
+        frameRate: 12,
+        frames: _this.anims.generateFrameNames('archer', {
+            prefix: 'auto-attack-up-',
             suffix: '.png',
             start: 1,
-            end: 6
+            end: 13
         }),
         repeat: -1
-
     });
     _this.anims.create({
-        key: 'left',
-        frameRate: 10,
-        frames: _this.anims.generateFrameNames('knight-walk', {
-            prefix: 'left-walk',
+        key: 'auto-attack-down',
+        frameRate: 12,
+        frames: _this.anims.generateFrameNames('archer', {
+            prefix: 'auto-attack-down-',
             suffix: '.png',
             start: 1,
-            end: 6
+            end: 13
         }),
         repeat: -1
-
     });
     _this.anims.create({
-        key: 'attack-right',
-        frameRate: 16,
-        frames: _this.anims.generateFrameNames('knight-walk', {
-            prefix: 'auto_attack',
+        key: 'auto-attack-left',
+        frameRate: 12,
+        frames: _this.anims.generateFrameNames('archer', {
+            prefix: 'auto-attack-left-',
             suffix: '.png',
-            start: 0,
-            end: 4
+            start: 1,
+            end: 13
         }),
         repeat: -1
-
     });
     _this.anims.create({
-        key: 'attack-left',
-        frameRate: 16,
-        frames: _this.anims.generateFrameNames('knight-walk', {
-            prefix: 'auto_left-attack',
+        key: 'auto-attack-right',
+        frameRate: 12,
+        frames: _this.anims.generateFrameNames('archer', {
+            prefix: 'auto-attack-right-',
             suffix: '.png',
-            start: 0,
-            end: 4
+            start: 1,
+            end: 13
         }),
         repeat: -1
-
     });
     _this.anims.create({
         key: 'idle-left',
         frameRate: 10,
-        frames: _this.anims.generateFrameNames('knight-walk', {
-            prefix: 'left-walk',
+        frames: _this.anims.generateFrameNames('archer', {
+            prefix: 'auto-attack-left-',
             suffix: '.png',
             start: 1,
             end: 1
         }),
         repeat: -1
-
     });
     _this.anims.create({
         key: 'idle-right',
         frameRate: 10,
-        frames: _this.anims.generateFrameNames('knight-walk', {
-            prefix: 'walk',
+        frames: _this.anims.generateFrameNames('archer', {
+            prefix: 'archer-',
             suffix: '.png',
-            start: 1,
-            end: 1
+            start: 87,
+            end: 87
         }),
         repeat: -1
-
-    });
-    _this.anims.create({
-        key: 'attack-extra-left',
-        frameRate: 10,
-        frames: _this.anims.generateFrameNames('knight-walk', {
-            prefix: 'left-attack_extra',
-            suffix: '.png',
-            start: 1,
-            end: 8
-        }),
-        repeat: -1
-
-    });
-    _this.anims.create({
-        key: 'attack-extra-right',
-        frameRate: 10,
-        frames: _this.anims.generateFrameNames('knight-walk', {
-            prefix: 'attack_extra',
-            suffix: '.png',
-            start: 1,
-            end: 8
-        }),
-        repeat: -1
-
     });
 }
 
 export const addPlayer = (_this: any) => {
     //create container for player sprites / hitboxes
     _this.container = _this.add.container(_this.spawnPoint.x, _this.spawnPoint.y);
-    _this.container.setSize(36, 49).setScale(0.8, 0.8);
+    _this.container.setSize(36, 39);
     _this.physics.world.enable(_this.container);
     // add damage player has taken to scene instance data
     _this.hitBy = {};
     // put player sprite inside a container that will control collisions and movement
-    _this.player = _this.physics.add.sprite(0, 5, 'knight-walk', 'walk1.png').setScale(1, 1).setSize(36, 49).setOffset(65, 60);
+    // _this.player = _this.physics.add.sprite(0, 0, 'archer', 'archer-78.png').setScale(1, 1).setSize(36, 49).setOffset(65, 60);
+    _this.player = _this.physics.add.sprite(0, -10, 'archer', 'archer-78.png').setScale(1, 1).setSize(36, 49);
     _this.playerStats = { ...defaultPlayerStats };
+    console.log('current health', _this.playerStats['health'].current);
+    if (_this.playerStats.health.current === 0) _this.playerStats.health.current=  _this.playerStats.health.max;
     Object.keys(_this.playerStats).forEach(key => {
         if (key === 'cooldown1') updateHudCooldown(key, _this.playerStats[key].current);
         if (key === 'attackSpeed')  updateHudStats(key, 100, _this.playerStats[key].min, _this);
@@ -296,13 +427,15 @@ export const addPlayer = (_this: any) => {
     // container collides with world layer
     _this.physics.add.collider(_this.container, _this.worldLayer, playerWorldCollisionHandler(_this));
     
-    // start with idle animation
+    // // start with idle animation
     _this.player.anims.play('idle-left');
+
     // Phaser supports multiple cameras, but you can access the default camera like _this:
     const camera = _this.cameras.main;
     // Constrain the camera so that it isn't allowed to move outside the width/height of tilemap
     camera.startFollow(_this.container);
     camera.setBounds(0, 0, _this.map.widthInPixels, _this.map.heightInPixels);
+    camera.zoom = .8;
 
     if (_this.spawns) {
         addEnemyInteractions(_this);

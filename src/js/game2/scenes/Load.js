@@ -1,7 +1,6 @@
-// import Phaser from 'phaser';
 import gameConstants from '../../constants/game2.constants';
 
-const { SCENES, dudeHeight, dudeWidth } = gameConstants;
+const { SCENES, dudeHeight, dudeWidth, archer } = gameConstants;
 
 class LoadScene extends Phaser.Scene {
     constructor() {
@@ -27,13 +26,13 @@ class LoadScene extends Phaser.Scene {
 
         this.load.image("mario-tiles", "super-mario-tiles.png");
         this.load.image('tiles', 'tuxmon-sample-32px-extruded.png');
-        // this.load.tilemapCSV('map', 'catastrophi_level3.csv');
-        // this.load.tilemapTiledJSON("map", "tuxemon-town.json");
         this.load.tilemapTiledJSON("map", "firstMap.json");
         this.load.atlas('atlas', 'atlas.png', 'atlas.json');
         
         this.load.atlas('knight-walk', './game-heroes/sheets/knight-walk.png', './game-heroes/sheets/knight-walk.json');
-        
+
+        this.load.atlas('archer', 'archer.png', 'archer.json');
+
         this.load.spritesheet('redEnemy', 'dude.png', {
             frameWidth: dudeWidth,
             frameHeight: dudeHeight
