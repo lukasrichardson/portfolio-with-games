@@ -160,7 +160,7 @@ export const addControls = (_this: any) => {
         }
     });
     _this.shift = _this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
-    _this.input.on('pointerdown', (a, b) => {
+    _this.input.on('pointerdown', (a: any, b: any) => {
         console.log('pointer down', a, b);
         _this.socket.emit('pointerdown');
     })

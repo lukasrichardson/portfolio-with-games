@@ -46,6 +46,7 @@ class MainScene extends Phaser.Scene {
     } | any;
     displayStatsMenu: boolean;
     i_key: any;
+    socket: any;
     constructor() {
         super({
             key: SCENES.GAME
