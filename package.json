@@ -2,6 +2,9 @@
   "name": "phaser-test",
   "version": "1.0.0",
   "description": "",
+  "engines": {
+    "node": "12.x"
+  },
   "main": "index.js",
   "scripts": {
     "start-old": "node server.js -experimental-modules",
